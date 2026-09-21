@@ -35,6 +35,8 @@ Singleton {
     property bool overviewPerMonitor: true
     property int overviewFocusedWorkspaceId: -1
     property var overviewWorkspaceMru: []
+    property int overviewCurrentWorkspaceId: -1
+    property int overviewPreviousWorkspaceId: -1
     property int overviewDraggingFromWorkspace: -1
     property int overviewDraggingTargetWorkspace: -1
     property bool overviewDraggingTargetIsTrailing: false
@@ -119,6 +121,15 @@ Singleton {
         GlobalStates.overviewWorkspaceMru = next;
     }
 
+    function observeWorkspaceHistory(wsId) {
+        const id = Number(wsId);
+        if (id < 1 || id > 100 || id === GlobalStates.overviewCurrentWorkspaceId)
+            return;
+        if (GlobalStates.overviewCurrentWorkspaceId > 0)
+            GlobalStates.overviewPreviousWorkspaceId = GlobalStates.overviewCurrentWorkspaceId;
+        GlobalStates.overviewCurrentWorkspaceId = id;
+    }
+
     function refreshOverviewModel() {
         GlobalStates.overviewRefreshSerial += 1;
     }
@@ -160,6 +171,9 @@ Singleton {
 
     Connections {
         target: Hyprland
+        function onFocusedWorkspaceChanged() {
+            root.observeWorkspaceHistory(Hyprland.focusedWorkspace?.id ?? 0);
+        }
         function onRawEvent(event) {
             if (event?.name !== "custom")
                 return;
@@ -203,4 +217,6 @@ Singleton {
             }
         }
     }
+
+    Component.onCompleted: root.observeWorkspaceHistory(Hyprland.focusedWorkspace?.id ?? 0)
 }

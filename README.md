@@ -7,7 +7,7 @@ switching from Orbit with live workspace previews from Overview Workspaces.
 
 - `Alt+Tab` — open Orbit and move to the next window.
 - `Alt+Shift+Tab` — move to the previous window.
-- `Super+Tab` — open the live workspace overview and move forward.
+- `Super+Tab` — open the live workspace overview with the current workspace first and the previous workspace selected.
 - `Super+Shift+Tab` — move backward through workspaces.
 - Release `Alt` or `Super` to activate the selected window or workspace.
 - Live workspace thumbnails, workspace drag-and-drop, and the Overview

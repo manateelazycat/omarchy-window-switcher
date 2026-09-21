@@ -5,6 +5,7 @@ import "."
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import "WorkspaceSwitchOrder.js" as WorkspaceSwitchOrder
 
 Singleton {
     id: root
@@ -44,11 +45,26 @@ Singleton {
 
     function switchingModeModel() {
         const monitorName = GlobalStates.overviewAnchorMonitorName || Hyprland.focusedMonitor?.name || "";
-        // All workspace navigation uses the same MRU order as the rendered grid.
         let model = ServiceManager.workspace.overviewWorkspaceEntriesForMonitor(monitorName, true, {}, true, false);
         if (model.length === 0)
             model = ServiceManager.workspace.overviewWorkspaceEntriesGlobal(true).filter(entry => !entry.isTrailingEmpty);
-        return model;
+
+        const currentId = root.currentWorkspaceId();
+        if (currentId > 0 && !model.some(entry => entry.id === currentId)) {
+            const workspace = ServiceManager.workspace.workspaceDataForId(currentId);
+            model = model.concat([{
+                id: currentId,
+                monitorName: workspace?.monitor ?? monitorName,
+                monitorIndex: 0,
+                monitorLabel: workspace?.monitor ?? monitorName,
+                isTrailingEmpty: false
+            }]);
+        }
+
+        return WorkspaceSwitchOrder.orderedEntries(
+            model,
+            currentId,
+            GlobalStates.overviewPreviousWorkspaceId);
     }
 
     function gridColumnsForModel(model) {

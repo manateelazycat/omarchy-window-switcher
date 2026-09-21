@@ -57,6 +57,50 @@ test("Overview defaults to native workspace ordering", () => {
   })), "legacy");
 });
 
+test("Super+Tab orders current workspace first and previous workspace second", () => {
+  const { orderedEntries } = require("../overview/WorkspaceSwitchOrder.js");
+  const entries = [1, 2, 3, 4].map(id => ({ id, isTrailingEmpty: false }));
+
+  assert.deepEqual(
+    orderedEntries(entries, 3, 1).map(entry => entry.id),
+    [3, 1, 2, 4]
+  );
+});
+
+test("Super+Tab falls back to the adjacent next workspace", () => {
+  const { orderedEntries } = require("../overview/WorkspaceSwitchOrder.js");
+  const entries = [1, 2, 3, 4].map(id => ({ id, isTrailingEmpty: false }));
+
+  assert.deepEqual(
+    orderedEntries(entries, 3, -1).map(entry => entry.id),
+    [3, 4, 1, 2]
+  );
+  assert.deepEqual(
+    orderedEntries(entries, 4, -1).map(entry => entry.id),
+    [4, 1, 2, 3]
+  );
+});
+
+test("Super+Tab ignores unavailable history and keeps creation slots last", () => {
+  const { orderedEntries } = require("../overview/WorkspaceSwitchOrder.js");
+  const entries = [
+    ...[1, 2, 3, 4].map(id => ({ id, isTrailingEmpty: false })),
+    { id: 5, isTrailingEmpty: true }
+  ];
+
+  assert.deepEqual(
+    orderedEntries(entries, 3, 9).map(entry => entry.id),
+    [3, 4, 1, 2, 5]
+  );
+});
+
+test("workspace history records the workspace left behind", () => {
+  const source = read("overview/GlobalStates.qml");
+  assert.match(source, /property int overviewPreviousWorkspaceId: -1/);
+  assert.match(source, /overviewPreviousWorkspaceId = GlobalStates\.overviewCurrentWorkspaceId/);
+  assert.match(source, /onFocusedWorkspaceChanged\(\)/);
+});
+
 test("shortcut service owns only the two switcher families", () => {
   const source = read("overview/KeybindingService.qml");
   assert.match(source, /hl\.bind\("ALT \+ TAB"/);
