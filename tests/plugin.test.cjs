@@ -32,7 +32,9 @@ test("the persistent service hosts Orbit so its global shortcuts are registered"
 });
 
 test("switcher previews omit the requested controls and app icons", () => {
-  assert.doesNotMatch(read("orbit/Overlay.qml"), /ModePicker\s*\{/);
+  const orbitOverlay = read("orbit/Overlay.qml");
+  assert.doesNotMatch(orbitOverlay, /ModePicker\s*\{/);
+  assert.doesNotMatch(orbitOverlay, /text:\s*"Orbit · "\s*\+/);
   const overviewWindow = read("overview/OverviewWindow.qml");
   assert.doesNotMatch(overviewWindow, /id:\s*windowIcon/);
   assert.doesNotMatch(overviewWindow, /AppSearch\.iconSource/);

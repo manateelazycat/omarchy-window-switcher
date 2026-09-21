@@ -1975,18 +1975,6 @@ Item {
               event.accepted = true
             }
 
-            Text {
-              id: heading
-              anchors.top: parent.top
-              anchors.topMargin: Style.space(18)
-              anchors.horizontalCenter: parent.horizontalCenter
-              text: "Orbit · " + (root.mode === "grid" ? "Grid" : root.mode === "flip" ? "Flip" : "Icons")
-              color: Color.menu.text
-              font.family: Style.font.menuFamily
-              font.pixelSize: Style.font.body
-              font.bold: true
-            }
-
             Loader {
               id: viewLoader
 
