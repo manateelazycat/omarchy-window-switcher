@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import "../orbit" as Orbit
 import "WorkspaceBarConfig.js" as WorkspaceBarConfig
 
 Item {
@@ -8,10 +9,19 @@ Item {
 
     // Injected by Omarchy's service loader.
     property var shell: null
+    property var manifest: null
     property string appliedMode: ""
     property bool restoring: false
     property bool destroying: false
     property string bindingOwner: ""
+
+    // Omarchy loads only one panel/overlay/menu entry point per plugin and
+    // prefers the panel. Host Orbit here so its GlobalShortcuts are always
+    // registered alongside the shortcut service.
+    Orbit.Overlay {
+        shell: root.shell
+        manifest: root.manifest
+    }
 
     // Never queue a callback that captures this service. The host destroys and
     // recreates all plugin entry points during a hot reload; an owned Timer is

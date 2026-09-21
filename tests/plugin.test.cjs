@@ -9,7 +9,7 @@ const read = relative => fs.readFileSync(path.join(root, relative), "utf8");
 test("manifest exposes every combined plugin entry point", () => {
   const manifest = JSON.parse(read("manifest.json"));
   assert.equal(manifest.id, "io.github.manateelazycat.window-switcher");
-  assert.deepEqual(manifest.kinds, ["overlay", "panel", "bar-widget", "service"]);
+  assert.deepEqual(manifest.kinds, ["panel", "bar-widget", "service"]);
   for (const entry of Object.values(manifest.entryPoints))
     assert.equal(fs.existsSync(path.join(root, entry)), true, `${entry} is missing`);
   assert.equal(manifest.omarchy.clonedFrom, "omarchy.workspaces");
@@ -19,6 +19,14 @@ test("Orbit reads settings from the combined plugin entry", () => {
   const source = read("orbit/Overlay.qml");
   assert.match(source, /pluginId: "io\.github\.manateelazycat\.window-switcher"/);
   assert.match(source, /property string mode: "grid"/);
+});
+
+test("the persistent service hosts Orbit so its global shortcuts are registered", () => {
+  const source = read("overview/KeybindingService.qml");
+  assert.match(source, /import "\.\.\/orbit" as Orbit/);
+  assert.match(source, /Orbit\.Overlay\s*\{/);
+  assert.match(source, /shell:\s*root\.shell/);
+  assert.match(source, /manifest:\s*root\.manifest/);
 });
 
 test("Overview defaults to native workspace ordering", () => {

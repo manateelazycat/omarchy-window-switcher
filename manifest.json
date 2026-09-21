@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.manateelazycat.window-switcher",
   "name": "Omarchy Window Switcher",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "ManateeLazyCat",
   "license": "MIT",
   "description": "Zero-configuration visual window and workspace switching for Omarchy, combining Orbit and Overview Workspaces.",
@@ -10,9 +10,8 @@
   "omarchy": {
     "clonedFrom": "omarchy.workspaces"
   },
-  "kinds": ["overlay", "panel", "bar-widget", "service"],
+  "kinds": ["panel", "bar-widget", "service"],
   "entryPoints": {
-    "overlay": "orbit/Overlay.qml",
     "panel": "overview/Overview.qml",
     "barWidget": "overview/bar/widget.qml",
     "service": "overview/KeybindingService.qml"
