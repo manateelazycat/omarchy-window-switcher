@@ -2046,14 +2046,6 @@ Item {
               }
             }
 
-            ModePicker {
-              anchors.bottom: parent.bottom
-              anchors.bottomMargin: Style.space(39)
-              anchors.horizontalCenter: parent.horizontalCenter
-              currentMode: root.mode
-              onModeRequested: mode => root.setMode(mode)
-            }
-
             Text {
               anchors.bottom: parent.bottom
               anchors.bottomMargin: Style.space(16)

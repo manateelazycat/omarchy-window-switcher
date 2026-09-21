@@ -8,7 +8,9 @@ const read = relative => fs.readFileSync(path.join(root, relative), "utf8");
 
 test("manifest exposes every combined plugin entry point", () => {
   const manifest = JSON.parse(read("manifest.json"));
+  const packageMetadata = JSON.parse(read("package.json"));
   assert.equal(manifest.id, "io.github.manateelazycat.window-switcher");
+  assert.equal(manifest.version, packageMetadata.version);
   assert.deepEqual(manifest.kinds, ["panel", "bar-widget", "service"]);
   for (const entry of Object.values(manifest.entryPoints))
     assert.equal(fs.existsSync(path.join(root, entry)), true, `${entry} is missing`);
@@ -27,6 +29,14 @@ test("the persistent service hosts Orbit so its global shortcuts are registered"
   assert.match(source, /Orbit\.Overlay\s*\{/);
   assert.match(source, /shell:\s*root\.shell/);
   assert.match(source, /manifest:\s*root\.manifest/);
+});
+
+test("switcher previews omit the requested controls and app icons", () => {
+  assert.doesNotMatch(read("orbit/Overlay.qml"), /ModePicker\s*\{/);
+  const overviewWindow = read("overview/OverviewWindow.qml");
+  assert.doesNotMatch(overviewWindow, /id:\s*windowIcon/);
+  assert.doesNotMatch(overviewWindow, /AppSearch\.iconSource/);
+  assert.doesNotMatch(overviewWindow, /symbol:\s*"apps"/);
 });
 
 test("Overview defaults to native workspace ordering", () => {

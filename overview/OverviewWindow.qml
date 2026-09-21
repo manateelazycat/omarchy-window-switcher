@@ -3,7 +3,6 @@ import "."
 import qs.Commons
 import qs.Ui
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "ColorUtils.js" as ColorUtils
@@ -102,18 +101,6 @@ Item { // Window
     property var targetWindowHeight: Math.max(1, Math.min(rawWindowHeight, Math.max(1, workspaceHeight - localY)))
     property bool hovered: false
     property bool pressed: false
-    property bool centerIcons: Config.options.overview.centerIcons
-    property real iconGapRatio: 0.06
-    property real iconToWindowRatio: centerIcons ? 0.35 : 0.15
-    property real xwaylandIndicatorToIconRatio: 0.35
-    property real iconToWindowRatioCompact: 0.6
-    // Hyprland can temporarily omit `class` while a client is being moved.
-    // initialClass is stable for the lifetime of the window and was the value
-    // available in the old overview during those refreshes.
-    property string iconClass: windowData?.class || windowData?.initialClass || "application-x-executable"
-    property string iconPath: AppSearch.iconSource(AppSearch.guessIcon(root.iconClass))
-    property bool compactMode: Appearance.font.pixelSize.smaller * 4 > targetWindowHeight || Appearance.font.pixelSize.smaller * 4 > targetWindowWidth
-
     property bool holdPosition: false
     property real holdX: 0
     property real holdY: 0
@@ -341,50 +328,6 @@ Item { // Window
             color: pressed ? ColorUtils.transparentize(Appearance.colors.colLayer2Active, 0.5) :
                 hovered ? ColorUtils.transparentize(Appearance.colors.colLayer2Hover, 0.7) :
                 ColorUtils.transparentize(Appearance.colors.colLayer2)
-    }
-
-    Image {
-        id: windowIcon
-        z: 3
-        visible: root.iconPath !== "" && status !== Image.Error
-        asynchronous: false
-        property real baseSize: Math.min(root.targetWindowWidth, root.targetWindowHeight)
-        anchors {
-            top: root.centerIcons ? undefined : parent.top
-            left: root.centerIcons ? undefined : parent.left
-            centerIn: root.centerIcons ? parent : undefined
-            margins: baseSize * root.iconGapRatio
-        }
-        property var iconSize: {
-            return baseSize * (root.compactMode ? root.iconToWindowRatioCompact : root.iconToWindowRatio);
-        }
-        mipmap: true
-        Layout.alignment: Qt.AlignHCenter
-        source: root.iconPath
-        width: iconSize
-        height: iconSize
-    }
-
-    Rectangle {
-        z: 3
-        visible: (root.iconPath === "" || windowIcon.status === Image.Error)
-        anchors {
-            top: root.centerIcons ? undefined : parent.top
-            left: root.centerIcons ? undefined : parent.left
-            centerIn: root.centerIcons ? parent : undefined
-            margins: Math.min(root.targetWindowWidth, root.targetWindowHeight) * root.iconGapRatio
-        }
-        width: windowIcon.width
-        height: windowIcon.height
-        radius: 0
-        color: ColorUtils.transparentize(TuiStyle.accent, 0.25)
-
-        NerdIcon {
-            anchors.centerIn: parent
-            symbol: "apps"
-            iconSize: Math.max(16, parent.height * 0.45)
-            color: TuiStyle.fg
-        }
     }
 
     // Window previews do not draw their own outline. The workspace card border
