@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: archlinux:base
+    timeout-minutes: 15
+    steps:
+      - name: Install native test dependencies
+        run: pacman -Syu --noconfirm --needed git gcc lua quickshell
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node --test tests/*.test.cjs

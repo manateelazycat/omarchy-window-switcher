@@ -1,0 +1,8 @@
+{
+  "name": "omarchy-overview-workspaces-tests",
+  "private": true,
+  "description": "Test harness for MenuIndex.js. The plugin itself is QML and needs no build step; this exists only so `npm test` has somewhere to live.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
