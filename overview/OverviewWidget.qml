@@ -846,59 +846,6 @@ Item {
         width: root.width
         height: root.height
 
-        // Keep the real workspace ID above the window thumbnails. The old
-        // label lived in the background delegate and was covered by this
-        // window layer for every occupied workspace.
-        Repeater {
-            model: root.overviewEntries
-
-            delegate: Item {
-                required property var modelData
-                required property int index
-                readonly property bool focused: modelData.id === root.highlightedWorkspaceId
-
-                x: root.entryX(index) + 8
-                y: root.entryY(index) + 8
-                width: root.entryWidth(index) - 16
-                height: root.entryHeight(index) - 16
-                z: root.windowZ + 10
-
-                Rectangle {
-                    id: workspaceBadge
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    width: badgeLabel.implicitWidth + 16
-                    height: badgeLabel.implicitHeight + 8
-                    radius: height / 2
-                    color: parent.focused
-                        // Keep both states opaque enough to separate the label
-                        // from the thumbnail, while deriving every color from
-                        // the active Omarchy theme.
-                        ? ColorUtils.mix(TuiStyle.accent, TuiStyle.bg, 0.18)
-                        : ColorUtils.mix(TuiStyle.bg, TuiStyle.accent, 0.12)
-                    border.width: 1
-                    border.color: parent.focused
-                        ? TuiStyle.accent
-                        : ColorUtils.mix(TuiStyle.fg, TuiStyle.bg, 0.45)
-
-                    StyledText {
-                        id: badgeLabel
-                        anchors.centerIn: parent
-                        text: modelData.isTrailingEmpty
-                            ? "New workspace"
-                            : `Workspace ${GlobalStates.overviewSortMode === "legacy"
-                                ? root.globalSlotForWorkspaceId(modelData.id)
-                                : modelData.id}`
-                        font {
-                            pixelSize: Appearance.font.pixelSize.smaller
-                            weight: Font.DemiBold
-                        }
-                        color: TuiStyle.fg
-                    }
-                }
-            }
-        }
-
             Repeater { // Window repeater
                 model: ScriptModel {
                     values: {
@@ -1197,7 +1144,9 @@ Item {
             z: root.windowDraggingZ + 1
             width: targetWidth
             height: 54
-            visible: GlobalStates.overviewOpen && infoTitle.length > 0
+            visible: GlobalStates.overviewOpen
+                && !showingWorkspaceInfo
+                && infoTitle.length > 0
             opacity: visible ? 1 : 0
 
 

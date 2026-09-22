@@ -39,6 +39,8 @@ test("switcher previews omit the requested controls and app icons", () => {
   assert.doesNotMatch(overviewWindow, /id:\s*windowIcon/);
   assert.doesNotMatch(overviewWindow, /AppSearch\.iconSource/);
   assert.doesNotMatch(overviewWindow, /symbol:\s*"apps"/);
+  const overviewWidget = read("overview/OverviewWidget.qml");
+  assert.doesNotMatch(overviewWidget, /id:\s*workspaceBadge/);
 });
 
 test("Overview defaults to native workspace ordering", () => {
