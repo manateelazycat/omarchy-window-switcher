@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.manateelazycat.window-switcher",
   "name": "Omarchy Window Switcher",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "ManateeLazyCat",
   "license": "MIT",
   "description": "Zero-configuration visual window and workspace switching for Omarchy, combining Orbit and Overview Workspaces.",

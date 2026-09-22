@@ -937,6 +937,8 @@ Item {
   }
 
   function releaseModifierExpression() {
+    // hyprctl eval does not expose a Lua return value. Raising the boolean as
+    // an error intentionally makes it available to observeModifierState().
     if (root.releaseModifier === "alt")
       return 'error(tostring(hl.is_key_down("Alt_L") or hl.is_key_down("Alt_R")))'
     if (root.releaseModifier === "super")
@@ -1075,11 +1077,22 @@ Item {
   function requestActivationReadiness() {
     if (!root.activationCommitInProgress || root.activationCommitFinalizing || root.activationCommitAttempts === 0 || !root.pendingWindow || activationDispatch.running || activationReadinessQuery.running)
       return
-    if ((root.activationTargetSurfaceReady && root.activationFocusConfirmed) || (root.activationCommitSettling && root.activationReadiness.startsWith("fallback-")))
+    if ((root.activationTargetSurfaceReady && root.activationFocusConfirmed) || root.activationReadiness.startsWith("fallback-"))
       return
     activationReadinessQuery.generation = root.activationGeneration
     activationReadinessQuery.command = ["hyprctl", "orbit-window-ready", root.pendingWindow.address]
     activationReadinessQuery.running = true
+  }
+
+  function useActivationReadinessFallback(reason) {
+    // orbit-window-ready is an optional compositor extension. Stock Hyprland
+    // returns non-JSON, so reveal after the short safety delay instead of
+    // waiting for the 1600 ms surface-ready timeout.
+    root.activationReadiness = reason
+    if (!root.activationCommitSettling)
+      return
+    activationSettleTimer.stop()
+    activationRevealTimer.restart()
   }
 
   function raisePendingWindow() {
@@ -1208,7 +1221,7 @@ Item {
     if (root.handoffNeedsCover && !root.activationCommitSettling) {
       activationCommitTimer.stop()
       root.activationCommitSettling = true
-      if (root.activationTargetSurfaceReady)
+      if (root.activationTargetSurfaceReady || root.activationReadiness.startsWith("fallback-"))
         activationRevealTimer.restart()
       else
         activationSettleTimer.restart()
@@ -1227,8 +1240,7 @@ Item {
     try {
       state = JSON.parse(text)
     } catch (error) {
-      if (root.handoffNeedsCover)
-        root.activationReadiness = "fallback-unavailable"
+      root.useActivationReadinessFallback("fallback-unavailable")
       return
     }
     if (state.protocol !== 1 || Logic.safeAddress(state.address) !== root.pendingWindow.address)
@@ -1244,7 +1256,7 @@ Item {
       return
     }
     if (!state.supported) {
-      root.activationReadiness = "fallback-unsupported"
+      root.useActivationReadinessFallback("fallback-unsupported")
       return
     }
     const expectedMode = root.pendingFullscreenRestore ? root.pendingFullscreenRestore.internal : 0
@@ -1618,7 +1630,7 @@ Item {
   Timer {
     interval: 32
     repeat: true
-    running: root.activationCommitInProgress && !root.activationCommitFinalizing && !(root.activationTargetSurfaceReady && root.activationFocusConfirmed) && !(root.activationCommitSettling && root.activationReadiness.startsWith("fallback-"))
+    running: root.activationCommitInProgress && !root.activationCommitFinalizing && !(root.activationTargetSurfaceReady && root.activationFocusConfirmed) && !root.activationReadiness.startsWith("fallback-")
     onTriggered: root.requestActivationReadiness()
   }
 

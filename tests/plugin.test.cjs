@@ -23,6 +23,17 @@ test("Orbit reads settings from the combined plugin entry", () => {
   assert.match(source, /property string mode: "grid"/);
 });
 
+test("Orbit falls back promptly when native activation readiness is unavailable", () => {
+  const source = read("orbit/Overlay.qml");
+  assert.match(source, /function useActivationReadinessFallback\(reason\)/);
+  assert.match(source, /activationSettleTimer\.stop\(\)\s+activationRevealTimer\.restart\(\)/);
+  assert.match(source, /activationTargetSurfaceReady \|\| root\.activationReadiness\.startsWith\("fallback-"\)/);
+  assert.match(source, /catch \(error\) \{\s+root\.useActivationReadinessFallback\("fallback-unavailable"\)/);
+  assert.match(source, /if \(!state\.supported\) \{\s+root\.useActivationReadinessFallback\("fallback-unsupported"\)/);
+  assert.match(source, /running: root\.activationCommitInProgress[^\n]+&& !root\.activationReadiness\.startsWith\("fallback-"\)/);
+  assert.doesNotMatch(source, /activationCommitSettling && root\.activationReadiness\.startsWith\("fallback-"\)/);
+});
+
 test("the persistent service hosts Orbit so its global shortcuts are registered", () => {
   const source = read("overview/KeybindingService.qml");
   assert.match(source, /import "\.\.\/orbit" as Orbit/);
