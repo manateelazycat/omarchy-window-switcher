@@ -178,6 +178,9 @@ Item {
     property int workspaceZ: 0
     property int windowZ: 1
     property int windowDraggingZ: 99999
+    // Keep workspace outlines above tiled, floating, and fullscreen previews,
+    // while still allowing the actively dragged window to pass over them.
+    property int workspaceBorderZ: windowDraggingZ - 1
     property real workspaceSpacing: gridPadding
 
     implicitWidth: root.width
@@ -1103,7 +1106,7 @@ Item {
                     visible: entryIndex >= 0
                     x: root.entryX(entryIndex)
                     y: root.entryY(entryIndex)
-                    z: root.windowZ
+                    z: root.workspaceBorderZ
                     width: root.entryWidth(entryIndex)
                     height: root.entryHeight(entryIndex)
                     color: "transparent"

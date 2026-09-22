@@ -54,6 +54,13 @@ test("switcher previews omit the requested controls and app icons", () => {
   assert.doesNotMatch(overviewWidget, /id:\s*workspaceBadge/);
 });
 
+test("workspace outlines stay above fullscreen window previews", () => {
+  const source = read("overview/OverviewWidget.qml");
+  assert.match(source, /property int workspaceBorderZ: windowDraggingZ - 1/);
+  assert.match(source, /Repeater \{ \/\/ Workspace entry borders \(on top of windows\)[\s\S]*?z: root\.workspaceBorderZ/);
+  assert.doesNotMatch(source, /Workspace entry borders \(on top of windows\)[\s\S]*?z: root\.windowZ\s/);
+});
+
 test("Overview defaults to native workspace ordering", () => {
   assert.match(read("overview/GlobalStates.qml"), /overviewSortMode: "system"/);
   assert.match(read("overview/bar/widget.qml"), /setting\("sortMode", "system"\)/);
