@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import "../orbit" as Orbit
 import "WorkspaceBarConfig.js" as WorkspaceBarConfig
 
@@ -37,25 +38,44 @@ Item {
         }
     }
 
-    // Hyprland removes runtime bindings while processing `configreloaded`.
-    // Reinstall after the reload has settled, otherwise the service can keep
-    // its old appliedMode while all plugin-owned bindings are gone.
+    // A config reload can arrive just after we install the runtime bindings.
+    // Check the live bindings after it settles, then reinstall only if needed.
     Timer {
         id: reapplyAfterReload
-        interval: 250
+        interval: 850
         repeat: false
-        onTriggered: root.applyBindings()
+        onTriggered: {
+            if (!bindingStatusQuery.running)
+                bindingStatusQuery.running = true;
+        }
     }
 
-    // A runtime binding transaction can produce a configreloaded event on some
-    // Hyprland versions. Ignore that event while our own binding transaction
-    // is settling; otherwise the service can repeatedly apply the same script
-    // and starve the Quickshell event loop. Events arriving after the guard
-    // expires are genuine external reloads and still trigger reinstallation.
-    Timer {
-        id: bindingApplyGuard
-        interval: 750
-        repeat: false
+    Process {
+        id: bindingStatusQuery
+        command: ["hyprctl", "binds", "-j"]
+        stdout: StdioCollector {
+            onStreamFinished: root.verifyBindings(text)
+        }
+    }
+
+    function verifyBindings(output) {
+        if (root.destroying || !root.shell || root.appliedMode === "")
+            return;
+        let bindings;
+        try {
+            bindings = JSON.parse(output);
+        } catch (error) {
+            console.warn("Window switcher: could not check Hyprland bindings:", error);
+            return;
+        }
+        const hasBinding = (mask, description) => bindings.some(binding =>
+            binding.modmask === mask && String(binding.key).toUpperCase() === "TAB"
+                && binding.description === description);
+        if (hasBinding(8, "Orbit next window")
+                && hasBinding(64, "Overview workspace next"))
+            return;
+        root.appliedMode = "";
+        root.applyBindings();
     }
 
     // The only key expressions installed below belong to this plugin. Never
@@ -155,7 +175,6 @@ Item {
             return;
         root.restoring = false;
         root.bindingOwner = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-        bindingApplyGuard.restart();
         Quickshell.execDetached(["hyprctl", "eval", root.transitionScript(root.appliedMode, mode, root.bindingOwner)]);
         root.appliedMode = mode;
     }
@@ -212,10 +231,6 @@ Item {
         function onRawEvent(event) {
             if (event?.name !== "configreloaded")
                 return;
-            if (bindingApplyGuard.running)
-                return;
-            root.appliedMode = "";
-            root.restoring = false;
             reapplyAfterReload.restart();
         }
     }
@@ -224,7 +239,7 @@ Item {
         root.destroying = true;
         applyBindingsTimer.stop();
         reapplyAfterReload.stop();
-        bindingApplyGuard.stop();
+        bindingStatusQuery.running = false;
         root.restoreBindings();
     }
 }
