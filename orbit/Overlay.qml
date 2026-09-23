@@ -25,7 +25,7 @@ Item {
   property var windows: []
   property int selectedIndex: 0
   property string mode: "grid"
-  property string windowScope: "visible"
+  property string windowScope: "all"
   readonly property var entries: root.mode === "icons" ? Logic.applicationEntries(root.windows) : root.windows
   property int snapshotWorkspaceId: -1
   property string snapshotMonitorName: ""
@@ -1448,7 +1448,7 @@ Item {
   GlobalShortcut {
     appid: "omarchy-window-switcher"
     name: "next"
-    description: "Cycle forward through windows on visible monitors"
+    description: "Cycle forward through windows on all regular workspaces"
 
     onPressed: root.invokeShortcut(1)
   }
@@ -1456,7 +1456,7 @@ Item {
   GlobalShortcut {
     appid: "omarchy-window-switcher"
     name: "previous"
-    description: "Cycle backward through windows on visible monitors"
+    description: "Cycle backward through windows on all regular workspaces"
 
     onPressed: root.invokeShortcut(-1)
   }
