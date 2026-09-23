@@ -114,6 +114,24 @@ test("Super+Tab ignores unavailable history and keeps creation slots last", () =
   );
 });
 
+test("Super+Tab puts empty workspaces after occupied ones across monitors", () => {
+  const { orderedEntries } = require("../overview/WorkspaceSwitchOrder.js");
+  const entries = [
+    { id: 10, monitorName: "HDMI-A-2", isEmpty: false },
+    { id: 7, monitorName: "HDMI-A-1", isEmpty: false },
+    { id: 4, monitorName: "DP-2", isEmpty: false },
+    { id: 5, monitorName: "DP-2", isEmpty: false },
+    { id: 2, monitorName: "DP-1", isEmpty: false },
+    { id: 1, monitorName: "DP-1", isEmpty: true },
+    { id: 3, monitorName: "DP-1", isEmpty: true }
+  ];
+
+  assert.deepEqual(orderedEntries(entries, 10, 7).map(entry => entry.id),
+    [10, 7, 2, 4, 5, 1, 3]);
+  assert.deepEqual(orderedEntries(entries, 1, 3).map(entry => entry.id),
+    [2, 4, 5, 7, 10, 1, 3]);
+});
+
 test("workspace history records the workspace left behind", () => {
   const source = read("overview/GlobalStates.qml");
   assert.match(source, /property int overviewPreviousWorkspaceId: -1/);

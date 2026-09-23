@@ -25,18 +25,22 @@ function orderedEntries(entries, currentWorkspaceId, previousWorkspaceId) {
     if (regular.length === 0)
         return trailing;
 
+    const occupied = regular.filter(entry => !entry.isEmpty);
+    const empty = regular.filter(entry => entry.isEmpty);
+    const candidates = occupied.length > 0 ? occupied : empty;
+
     const byId = {};
-    for (const entry of regular)
+    for (const entry of candidates)
         byId[Number(entry.id)] = entry;
 
     const currentId = Number(currentWorkspaceId);
     const previousId = Number(previousWorkspaceId);
-    const current = byId[currentId] ?? regular[0];
+    const current = byId[currentId] ?? candidates[0];
     let preferred = previousId !== currentId ? byId[previousId] : null;
 
     if (!preferred) {
-        preferred = regular.find(entry => Number(entry.id) > Number(current.id))
-            ?? regular.find(entry => Number(entry.id) !== Number(current.id))
+        preferred = candidates.find(entry => Number(entry.id) > Number(current.id))
+            ?? candidates.find(entry => Number(entry.id) !== Number(current.id))
             ?? null;
     }
 
@@ -44,8 +48,12 @@ function orderedEntries(entries, currentWorkspaceId, previousWorkspaceId) {
     const seen = {};
     pushUnique(ordered, seen, current);
     pushUnique(ordered, seen, preferred);
-    for (const entry of regular)
+    for (const entry of candidates)
         pushUnique(ordered, seen, entry);
+    if (occupied.length > 0) {
+        for (const entry of empty)
+            pushUnique(ordered, seen, entry);
+    }
     for (const entry of trailing)
         pushUnique(ordered, seen, entry);
     return ordered;

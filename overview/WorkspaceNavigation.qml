@@ -45,7 +45,8 @@ Singleton {
 
     function switchingModeModel() {
         const monitorName = GlobalStates.overviewAnchorMonitorName || Hyprland.focusedMonitor?.name || "";
-        let model = ServiceManager.workspace.overviewWorkspaceEntriesForMonitor(monitorName, true, {}, true, false);
+        let model = ServiceManager.workspace.overviewWorkspaceEntriesGroupedByMonitor()
+            .filter(entry => !entry.isTrailingEmpty);
         if (model.length === 0)
             model = ServiceManager.workspace.overviewWorkspaceEntriesGlobal(true).filter(entry => !entry.isTrailingEmpty);
 
@@ -60,6 +61,10 @@ Singleton {
                 isTrailingEmpty: false
             }]);
         }
+
+        model = model.map(entry => Object.assign({}, entry, {
+            isEmpty: !ServiceManager.workspace.workspaceHasVisibleWindows(entry.id)
+        }));
 
         return WorkspaceSwitchOrder.orderedEntries(
             model,

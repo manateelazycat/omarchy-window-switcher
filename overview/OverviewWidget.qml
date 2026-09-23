@@ -41,10 +41,8 @@ Item {
         return root.scopedOverviewEntries();
     }
 
-    // In per-monitor mode each overlay asks for its own screen's entries instead
-    // of the global list. Scoping here rather than in the renderer leaves the
-    // grid, height and aspect maths untouched: monitorGroups is derived from this
-    // list, so it collapses to a single group on its own.
+    // Ordinary overview follows the per-monitor setting. Super+Tab supplies
+    // the workspaces from every monitor on the focused screen.
     function scopedOverviewEntries() {
         const all = ServiceManager.workspace.overviewWorkspaceEntries ?? [];
         if (!GlobalStates.overviewPerMonitor)
@@ -59,6 +57,15 @@ Item {
     }
     readonly property var overviewEntryIds: (root.overviewEntries ?? []).map(entry => entry.id)
     readonly property var monitorGroups: {
+        if (OverviewSwitchingController.grabbed && root.overviewEntries.length > 0)
+            return [{
+                key: root.monitor?.name ?? root.overviewEntries[0].monitorName ?? "",
+                label: "All workspaces",
+                start: 0,
+                end: root.overviewEntries.length - 1,
+                monitorIndex: 0
+            }];
+
         const groups = [];
         const byKey = {};
         for (let i = 0; i < root.overviewEntries.length; ++i) {
@@ -108,7 +115,7 @@ Item {
 
     // ── Adaptive scaling ──
     // Overview (工作区概览): full-screen grid, auto-select optimal columns
-    // Overview switching mode (Win+Tab): current-monitor preview, use config scale value
+    // Super+Tab uses one grid for all monitor workspaces on the focused screen.
     // Hyprland reports monitor width/height in physical pixels, while its
     // position, reserved area, and client geometry use logical coordinates.
     // Convert pixels first, then subtract the logical reserved margins.
