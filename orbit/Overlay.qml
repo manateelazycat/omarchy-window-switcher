@@ -241,19 +241,13 @@ Item {
 
   function focusedScreen() {
     const screens = Quickshell.screens || []
-    const focused = root.screenForMonitorName(root.snapshotMonitorName)
+    const activeMonitorName = Hyprland.activeToplevel && Hyprland.activeToplevel.monitor
+      ? Hyprland.activeToplevel.monitor.name : ""
+    const focused = root.screenForMonitorName(activeMonitorName)
+      || root.screenForMonitorName(root.snapshotMonitorName)
     if (focused)
       return focused
     return screens.length > 0 ? screens[0] : null
-  }
-
-  function switcherScreen() {
-    const config = root.shell ? root.shell.shellConfig : null
-    const monitors = []
-    for (const monitor of Hyprland.monitors.values || [])
-      monitors.push(monitor)
-    const monitorName = Logic.overlayMonitorName(config ? config.plugins : null, root.pluginId, monitors, root.snapshotMonitorName)
-    return root.screenForMonitorName(monitorName) || root.focusedScreen()
   }
 
   function captureFocusContext() {
@@ -410,7 +404,7 @@ Item {
     root.windowModes = root.configuredWindowModes()
     if (!root.captureFocusContext())
       return
-    root.targetScreen = root.switcherScreen()
+    root.targetScreen = root.focusedScreen()
     root.snapshotPending = true
     root.snapshotCancelled = false
     root.pendingActivateOnRelease = activateOnRelease

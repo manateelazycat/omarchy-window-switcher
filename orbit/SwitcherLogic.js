@@ -224,62 +224,6 @@ function normalizeScope(value) {
   return scope === "monitor" || scope === "all" || scope === "visible" ? scope : "visible"
 }
 
-function normalizeOverlayMonitor(value) {
-  var monitor = String(value || "").trim()
-  var normalized = monitor.toLowerCase()
-  if (!monitor || normalized === "primary") return "primary"
-  if (normalized === "focused") return "focused"
-  return monitor
-}
-
-function primaryMonitorName(monitors) {
-  if (!Array.isArray(monitors)) return ""
-
-  var available = []
-  for (var i = 0; i < monitors.length; i++) {
-    var monitor = monitors[i]
-    if (!monitor || !String(monitor.name || "")) continue
-    available.push(monitor)
-    if (Number(monitor.x) === 0 && Number(monitor.y) === 0)
-      return String(monitor.name)
-  }
-
-  for (var j = 0; j < available.length; j++) {
-    var candidate = available[j]
-    var scale = Math.max(0.01, Number(candidate.scale) || 1)
-    var width = (Number(candidate.width) || 0) / scale
-    var height = (Number(candidate.height) || 0) / scale
-    var x = Number(candidate.x) || 0
-    var y = Number(candidate.y) || 0
-    if (x <= 0 && x + width > 0 && y <= 0 && y + height > 0)
-      return String(candidate.name)
-  }
-
-  return available.length > 0 ? String(available[0].name) : ""
-}
-
-function overlayMonitorName(entries, pluginId, monitors, focusedMonitorName) {
-  var configured = "primary"
-  if (Array.isArray(entries)) {
-    for (var i = 0; i < entries.length; i++) {
-      if (entries[i] && String(entries[i].id || "") === String(pluginId || "")) {
-        configured = normalizeOverlayMonitor(entries[i].overlayMonitor)
-        break
-      }
-    }
-  }
-
-  var focused = String(focusedMonitorName || "")
-  if (configured === "focused") return focused || primaryMonitorName(monitors)
-  if (configured !== "primary" && Array.isArray(monitors)) {
-    for (var j = 0; j < monitors.length; j++) {
-      if (monitors[j] && String(monitors[j].name || "") === configured)
-        return configured
-    }
-  }
-  return primaryMonitorName(monitors) || focused
-}
-
 function modeFromPluginEntries(entries, pluginId) {
   if (!Array.isArray(entries)) return "grid"
   var id = String(pluginId || "")
