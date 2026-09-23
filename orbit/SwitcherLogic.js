@@ -221,7 +221,7 @@ function normalizeMode(value) {
 
 function normalizeScope(value) {
   var scope = String(value || "").toLowerCase()
-  return scope === "monitor" || scope === "all" || scope === "visible" ? scope : "all"
+  return scope === "monitor" || scope === "all" || scope === "visible" ? scope : "visible"
 }
 
 function modeFromPluginEntries(entries, pluginId) {
@@ -235,12 +235,12 @@ function modeFromPluginEntries(entries, pluginId) {
 }
 
 function scopeFromPluginEntries(entries, pluginId) {
-  if (!Array.isArray(entries)) return "all"
+  if (!Array.isArray(entries)) return "visible"
   for (var i = 0; i < entries.length; i++) {
     if (String(entries[i].id || "") === String(pluginId || ""))
       return normalizeScope(entries[i].scope)
   }
-  return "all"
+  return "visible"
 }
 
 function snapLayouts() {

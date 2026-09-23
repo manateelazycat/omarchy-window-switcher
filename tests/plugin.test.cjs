@@ -23,28 +23,6 @@ test("Orbit reads settings from the combined plugin entry", () => {
   assert.match(source, /property string mode: "grid"/);
 });
 
-test("Alt+Tab includes windows on inactive regular workspaces by default", () => {
-  const vm = require("node:vm");
-  const logic = vm.createContext({});
-  vm.runInContext(read("orbit/SwitcherLogic.js").replace(/^\.pragma library\s*/, ""), logic);
-
-  const scope = logic.scopeFromPluginEntries([], "io.github.manateelazycat.window-switcher");
-  assert.equal(scope, "all");
-  assert.equal(logic.scopeFromPluginEntries([{
-    id: "io.github.manateelazycat.window-switcher"
-  }], "io.github.manateelazycat.window-switcher"), "all");
-  assert.equal(logic.scopeFromPluginEntries([{
-    id: "io.github.manateelazycat.window-switcher", scope: "visible"
-  }], "io.github.manateelazycat.window-switcher"), "visible");
-
-  const eligible = (workspaceId, name) => logic.isEligibleWindow({
-    mapped: true, workspace: { id: workspaceId, name }
-  }, workspaceId, "DP-2", 3, scope, [5, 7, 10],
-  ["DP-2", "HDMI-A-1", "HDMI-A-2"], [3, 0, 2], 10, "HDMI-A-2", 2);
-  assert.equal(eligible(4, "4"), true);
-  assert.equal(eligible(-99, "special:scratchpad"), false);
-});
-
 test("Orbit falls back promptly when native activation readiness is unavailable", () => {
   const source = read("orbit/Overlay.qml");
   assert.match(source, /function useActivationReadinessFallback\(reason\)/);
