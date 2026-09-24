@@ -23,6 +23,40 @@ test("Orbit reads settings from the combined plugin entry", () => {
   assert.match(source, /property string mode: "grid"/);
 });
 
+test("Alt+Tab uses the current workspace on one monitor and all local workspaces on multiple monitors", () => {
+  const source = read("orbit/Overlay.qml");
+  const startSwitcher = source.match(/function startSwitcher\([^]*?\n  function open\(/)?.[0];
+  assert.ok(startSwitcher);
+  assert.match(startSwitcher, /root\.windowScope = Logic\.altTabScope\(monitorCount\)/);
+  assert.match(source, /const workspace = Hyprland\.focusedWorkspace\s+const monitor = Hyprland\.focusedMonitor/);
+  assert.match(source, /const focused = root\.screenForMonitorName\(root\.snapshotMonitorName\)/);
+  assert.match(source, /root\.prepareFullscreenHandoff\(root\.sourceWindow, selected\)/);
+
+  const vm = require("node:vm");
+  const logic = vm.createContext({});
+  vm.runInContext(read("orbit/SwitcherLogic.js").replace(/^\.pragma library\s*/, ""), logic);
+  assert.equal(logic.altTabScope(1), "monitor");
+  assert.equal(logic.altTabScope(2), "monitor-workspaces");
+  const eligible = (scope, workspaceId, monitorId, name = String(workspaceId)) =>
+    logic.isEligibleWindow({ mapped: true, pinned: false, workspace: { name } },
+      workspaceId, "", monitorId, scope, [2, 4], ["DP-1", "HDMI-A-1"], [0, 1],
+      2, "DP-1", 0);
+
+  assert.equal(eligible(logic.altTabScope(1), 2, 0), true);
+  assert.equal(eligible(logic.altTabScope(1), 3, 0), false);
+  assert.equal(eligible(logic.altTabScope(2), 2, 0), true);
+  assert.equal(eligible(logic.altTabScope(2), 3, 0), true);
+  assert.equal(eligible(logic.altTabScope(2), 4, 1), false);
+  assert.equal(eligible(logic.altTabScope(2), -99, 0, "special:scratchpad"), false);
+  assert.equal(eligible(logic.altTabScope(2), -99, 0, "special:taskbar-minimized-3-0-0-0-abcd"), true);
+
+  const windows = [{ address: "0x1" }, { address: "0x2" }, { address: "0x3" }];
+  assert.equal(logic.initialSelection(windows, 1, "0x2"), 2);
+  assert.equal(logic.initialSelection(windows, -1, "0x2"), 0);
+  assert.equal(logic.initialSelection([{ address: "0x3" }], 1, ""), 0);
+  assert.equal(logic.initialSelection([{ address: "0x3" }], 1, "0x3"), -1);
+});
+
 test("Orbit falls back promptly when native activation readiness is unavailable", () => {
   const source = read("orbit/Overlay.qml");
   assert.match(source, /function useActivationReadinessFallback\(reason\)/);

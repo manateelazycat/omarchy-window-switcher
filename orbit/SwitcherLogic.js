@@ -95,6 +95,19 @@ function isEligibleWindow(ipc, workspaceId, monitorName, monitorId, scope,
     return Number(monitorId) === Number(activeMonitorId)
   }
 
+  if (normalizedScope === "monitor-workspaces") {
+    var workspaceName = String(ipc.workspace ? ipc.workspace.name || "" : "")
+    // Keep taskbar-minimized windows, but skip unrelated special workspaces.
+    if (workspace <= 0 && (!workspaceName || workspaceName.startsWith("special:"))) return false
+    // The IPC monitor ID also identifies windows on inactive workspaces.
+    var clientMonitorId = Number(monitorId)
+    var focusedMonitorId = Number(activeMonitorId)
+    if (Number.isInteger(clientMonitorId) && clientMonitorId >= 0
+        && Number.isInteger(focusedMonitorId) && focusedMonitorId >= 0)
+      return clientMonitorId === focusedMonitorId
+    return !!(monitorName && activeMonitorName && monitorName === activeMonitorName)
+  }
+
   if (listIncludesNumber(visibleWorkspaceIds, workspace)) return true
   if (!pinned) return false
   if (listIncludesString(visibleMonitorNames, monitorName)) return true
@@ -195,9 +208,12 @@ function iconLuminance(pixels) {
   return alpha > 0 ? weighted / alpha : 0.5
 }
 
-function initialSelection(rows, direction) {
-  if (rows.length <= 1) return 0
-  return Number(direction) < 0 ? rows.length - 1 : 1
+function initialSelection(rows, direction, activeAddress) {
+  if (!Array.isArray(rows) || rows.length === 0) return -1
+  var activeIndex = entryIndexForAddress(rows, activeAddress)
+  if (activeIndex < 0) return Number(direction) < 0 ? rows.length - 1 : 0
+  if (rows.length === 1) return -1
+  return wrapIndex(activeIndex + (Number(direction) < 0 ? -1 : 1), rows.length)
 }
 
 function wrapIndex(index, length) {
@@ -221,7 +237,11 @@ function normalizeMode(value) {
 
 function normalizeScope(value) {
   var scope = String(value || "").toLowerCase()
-  return scope === "monitor" || scope === "all" || scope === "visible" ? scope : "visible"
+  return scope === "monitor" || scope === "monitor-workspaces" || scope === "all" || scope === "visible" ? scope : "visible"
+}
+
+function altTabScope(monitorCount) {
+  return Number(monitorCount) > 1 ? "monitor-workspaces" : "monitor"
 }
 
 function modeFromPluginEntries(entries, pluginId) {

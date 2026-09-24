@@ -5,13 +5,22 @@ https://github.com/user-attachments/assets/9a04ea39-e196-45a8-99f9-1de1ed632013
 A zero-configuration Omarchy Quattro plugin that combines visual window
 switching from Orbit with live workspace previews from Overview Workspaces.
 
+## Keyboard shortcuts
+
+| Shortcut | One monitor | Multiple monitors |
+| --- | --- | --- |
+| `Alt+Tab` | Cycle windows in the current workspace. | Cycle windows across all regular workspaces on the focused monitor. |
+| `Alt+Shift+Tab` | Cycle backward through the same windows. | Cycle backward through the same windows. |
+| `Super+Tab` | Cycle workspaces on the monitor. | Cycle workspaces across all monitors in one grid on the focused monitor. |
+| `Super+Shift+Tab` | Cycle backward through workspaces. | Cycle backward through workspaces across all monitors. |
+
+Hold `Alt` or `Super` and press `Tab` repeatedly, then release the modifier to
+activate the selected window or workspace. `Super+Tab` puts occupied workspaces
+first, prioritizing the current and previous workspaces when occupied. Empty
+workspaces follow; the "new workspace" slot is not part of the cycle.
+
 ## Features
 
-- `Alt+Tab` — open Orbit and move to the next window.
-- `Alt+Shift+Tab` — move to the previous window.
-- `Super+Tab` — open the live workspace overview across all monitors, prioritizing occupied current and previous workspaces and placing empty workspaces last.
-- `Super+Shift+Tab` — move backward through workspaces.
-- Release `Alt` or `Super` to activate the selected window or workspace.
 - Live workspace thumbnails, workspace drag-and-drop, and the Overview
   Workspaces bar widget.
 - System-native `Super+1` through `Super+0` workspace bindings remain intact.

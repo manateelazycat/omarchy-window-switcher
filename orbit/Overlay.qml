@@ -23,9 +23,10 @@ Item {
   property bool hoverArmed: false
   property point initialPointerPosition: Qt.point(-1, -1)
   property var windows: []
+  property var sourceWindow: null
   property int selectedIndex: 0
   property string mode: "grid"
-  property string windowScope: "visible"
+  property string windowScope: "monitor"
   readonly property var entries: root.mode === "icons" ? Logic.applicationEntries(root.windows) : root.windows
   property int snapshotWorkspaceId: -1
   property string snapshotMonitorName: ""
@@ -243,8 +244,8 @@ Item {
     const screens = Quickshell.screens || []
     const activeMonitorName = Hyprland.activeToplevel && Hyprland.activeToplevel.monitor
       ? Hyprland.activeToplevel.monitor.name : ""
-    const focused = root.screenForMonitorName(activeMonitorName)
-      || root.screenForMonitorName(root.snapshotMonitorName)
+    const focused = root.screenForMonitorName(root.snapshotMonitorName)
+      || root.screenForMonitorName(activeMonitorName)
     if (focused)
       return focused
     return screens.length > 0 ? screens[0] : null
@@ -264,7 +265,8 @@ Item {
     const visibleMonitorIds = []
     const monitors = Hyprland.monitors.values || []
     for (const candidateMonitor of monitors) {
-      if (root.windowScope === "monitor" && Number(candidateMonitor.id) !== root.snapshotMonitorId)
+      if ((root.windowScope === "monitor" || root.windowScope === "monitor-workspaces")
+          && Number(candidateMonitor.id) !== root.snapshotMonitorId)
         continue
       const monitorName = String(candidateMonitor.name || "")
       const monitorId = Number(candidateMonitor.id)
@@ -370,9 +372,11 @@ Item {
     const nextWindows = root.snapshotCurrentWindows(clients)
     root.windows = nextWindows
     const nextEntries = root.mode === "icons" ? Logic.applicationEntries(nextWindows) : nextWindows
-    if (nextEntries.length < 2)
+    const sourceIndex = Logic.entryIndexForAddress(nextWindows, Hyprland.activeToplevel ? Hyprland.activeToplevel.address : "")
+    root.sourceWindow = sourceIndex >= 0 ? nextWindows[sourceIndex] : null
+    const initialIndex = Logic.initialSelection(nextEntries, root.pendingDirection, root.sourceWindow ? root.sourceWindow.address : "")
+    if (initialIndex < 0)
       return
-    const initialIndex = Logic.initialSelection(nextEntries, root.pendingDirection)
     root.selectedIndex = Logic.wrapIndex(initialIndex + root.queuedSteps, nextEntries.length)
     root.releaseToActivate = root.pendingActivateOnRelease
     root.releaseModifier = root.pendingActivateOnRelease ? root.pendingModifier : ""
@@ -381,7 +385,7 @@ Item {
     // A gesture released while the query was in flight needs no picker or
     // thumbnail delegates. Only a possible resize needs the passive capture.
     root.pickerPresented = !root.pendingGestureReleased && root.switcherInputSource !== "native"
-    const source = nextWindows[0]
+    const source = root.sourceWindow
     const coverCandidates = root.pendingGestureReleased ? [nextEntries[root.selectedIndex]] : nextWindows
     root.coverCaptureNeeded = coverCandidates.some(target => Logic.needsHandoffCover(source, target, root.rememberedFullscreenStates[target.address], root.windowModes))
     root.opened = true
@@ -400,7 +404,11 @@ Item {
   function startSwitcher(activateOnRelease, modifier, direction, inputSource) {
     root.traceInput("start", direction)
     root.mode = root.configuredMode()
-    root.windowScope = root.configuredScope()
+    // A single monitor stays on its current workspace. With multiple monitors,
+    // include every regular workspace owned by the focused monitor.
+    const monitorCount = Math.max((Hyprland.monitors.values || []).length, (Quickshell.screens || []).length)
+    root.windowScope = Logic.altTabScope(monitorCount)
+    root.sourceWindow = null
     root.windowModes = root.configuredWindowModes()
     if (!root.captureFocusContext())
       return
@@ -491,7 +499,7 @@ Item {
   }
 
   onShellChanged: {
-    if (root.shell && !root.opened) {
+    if (root.shell && !root.opened && !root.snapshotPending) {
       root.mode = root.configuredMode()
       root.windowScope = root.configuredScope()
       root.windowModes = root.configuredWindowModes()
@@ -1278,7 +1286,7 @@ Item {
       root.opened = false
       return
     }
-    root.prepareFullscreenHandoff(root.windows.length > 0 ? root.windows[0] : null, selected)
+    root.prepareFullscreenHandoff(root.sourceWindow, selected)
     root.pendingWindow = selected
     root.activationCommitInProgress = true
     root.activationCommitSettling = false
@@ -1448,7 +1456,7 @@ Item {
   GlobalShortcut {
     appid: "omarchy-window-switcher"
     name: "next"
-    description: "Cycle forward through windows on visible monitors"
+    description: "Cycle forward through windows on the focused monitor"
 
     onPressed: root.invokeShortcut(1)
   }
@@ -1456,7 +1464,7 @@ Item {
   GlobalShortcut {
     appid: "omarchy-window-switcher"
     name: "previous"
-    description: "Cycle backward through windows on visible monitors"
+    description: "Cycle backward through windows on the focused monitor"
 
     onPressed: root.invokeShortcut(-1)
   }
@@ -2064,7 +2072,7 @@ Item {
         PanelWindow {
           // The picker stays on the primary display, but a resize cover belongs
           // to the outgoing window's display. This window never takes input.
-          screen: root.screenForMonitorName(root.windows.length > 0 ? root.windows[0].monitorName : "") || root.targetScreen
+          screen: root.screenForMonitorName(root.sourceWindow ? root.sourceWindow.monitorName : "") || root.targetScreen
           anchors {
             top: true
             bottom: true
@@ -2090,7 +2098,7 @@ Item {
             ScreencopyView {
               id: outgoingCapture
 
-              readonly property var captureWindow: root.windows.length > 0 ? root.windows[0] : null
+              readonly property var captureWindow: root.sourceWindow
               readonly property real coverScale: sourceSize.width > 0 && sourceSize.height > 0 ? Math.max(handoffCover.width / sourceSize.width, handoffCover.height / sourceSize.height) : 1
 
               anchors.centerIn: parent
