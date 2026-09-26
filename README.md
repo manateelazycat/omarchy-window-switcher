@@ -1,5 +1,7 @@
 # Omarchy Window Switcher
 
+English | [简体中文](README.zh-CN.md)
+
 https://github.com/user-attachments/assets/9a04ea39-e196-45a8-99f9-1de1ed632013
 
 A zero-configuration Omarchy Quattro plugin that combines visual window
