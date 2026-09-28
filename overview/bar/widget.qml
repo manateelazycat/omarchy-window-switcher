@@ -5,10 +5,14 @@ import Quickshell.Hyprland
 import qs.Commons
 import qs.Ui
 import ".." as Local
+import "../WorkspaceModelSync.js" as WorkspaceModelSync
 
 BarWidget {
     id: root
     moduleName: "io.github.manateelazycat.window-switcher"
+    property bool workspaceModelReady: false
+
+    ListModel { id: workspaceModel }
 
     readonly property bool opened: settingsPanelLoader.item
         ? settingsPanelLoader.item.opened === true
@@ -66,6 +70,12 @@ BarWidget {
         return ordered;
     }
 
+    function syncWorkspaceModel() {
+        WorkspaceModelSync.syncWorkspaceModel(workspaceModel, root.workspaceIds ?? []);
+    }
+
+    onWorkspaceIdsChanged: if (workspaceModelReady) syncWorkspaceModel()
+
     function applySettings() {
         Local.GlobalStates.overviewSortMode = setting("sortMode", "system") === "legacy"
             ? "legacy" : "system";
@@ -103,6 +113,8 @@ BarWidget {
     onSettingsChanged: { applySettings(); injectPanel(); }
     Component.onCompleted: {
         applySettings();
+        workspaceModelReady = true;
+        syncWorkspaceModel();
     }
 
     // Keep the small gaps between workspace buttons useful as a mouse fallback
@@ -165,14 +177,14 @@ BarWidget {
         visible: !root.mruEnabled
 
         Repeater {
-            model: root.workspaceIds
+            model: workspaceModel
 
             WidgetButton {
-                required property int modelData
-                readonly property bool focused: root.focusedWorkspaceId === modelData
-                readonly property var workspace: Local.HyprlandData.workspaceById[modelData]
+                required property int workspaceId
+                readonly property bool focused: root.focusedWorkspaceId === workspaceId
+                readonly property var workspace: Local.HyprlandData.workspaceById[workspaceId]
                 readonly property bool occupied: !!workspace
-                    && Local.HyprlandData.workspaceHasVisibleWindows(modelData)
+                    && Local.HyprlandData.workspaceHasVisibleWindows(workspaceId)
 
                 bar: root.bar
                 fontFamily: "JetBrainsMono Nerd Font"
@@ -180,7 +192,7 @@ BarWidget {
                 // remain the real Hyprland workspace ID. Otherwise the focused
                 // workspace is always drawn as the first visual slot and looks
                 // like workspace 1 after every MRU promotion.
-                text: modelData === 10 ? "0" : String(modelData)
+                text: workspaceId === 10 ? "0" : String(workspaceId)
                 active: focused
                 opacity: occupied || focused ? 1 : 0.5
                 horizontalMargin: 6
@@ -191,7 +203,7 @@ BarWidget {
                     if (buttonCode === Qt.RightButton)
                         root.openOverview();
                     else
-                        root.focusWorkspace(modelData);
+                        root.focusWorkspace(workspaceId);
                 }
             }
         }

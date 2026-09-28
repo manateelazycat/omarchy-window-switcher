@@ -111,6 +111,35 @@ test("Overview defaults to native workspace ordering", () => {
   })), "legacy");
 });
 
+test("workspace bar preserves unchanged buttons when workspaces move between monitors", () => {
+  const { syncWorkspaceModel } = require("../overview/WorkspaceModelSync.js");
+  const rows = [];
+  const operations = [];
+  const model = {
+    get count() { return rows.length; },
+    get(index) { return rows[index]; },
+    insert(index, row) { rows.splice(index, 0, row); operations.push("insert"); },
+    remove(index) { rows.splice(index, 1); operations.push("remove"); },
+    move(from, to, count) { rows.splice(to, 0, ...rows.splice(from, count)); operations.push("move"); },
+  };
+  syncWorkspaceModel(model, [1, 13]);
+  const firstButton = rows[0];
+  operations.length = 0;
+  syncWorkspaceModel(model, [1, 13]);
+  assert.deepEqual(operations, []);
+  syncWorkspaceModel(model, [1, 2]);
+  assert.deepEqual(operations, ["remove", "insert"]);
+  assert.equal(rows[0], firstButton);
+  operations.length = 0;
+  syncWorkspaceModel(model, [2, 1]);
+  assert.deepEqual(operations, ["move"]);
+  assert.equal(rows[1], firstButton);
+
+  const bar = read("overview/bar/widget.qml");
+  assert.match(bar, /model: workspaceModel/);
+  assert.match(bar, /WorkspaceModelSync\.syncWorkspaceModel\(workspaceModel, root\.workspaceIds/);
+});
+
 test("Super+Tab orders current workspace first and previous workspace second", () => {
   const { orderedEntries } = require("../overview/WorkspaceSwitchOrder.js");
   const entries = [1, 2, 3, 4].map(id => ({ id, isTrailingEmpty: false }));
