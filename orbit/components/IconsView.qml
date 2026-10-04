@@ -77,7 +77,7 @@ Item {
           height: root.tileHeight
           radius: Style.cornerRadius
           color: selected ? Color.menu.selectedBackground : (hoverHandler.hovered ? Qt.alpha(Color.menu.text, 0.08) : "transparent")
-          border.width: selected ? 2 : 1
+          border.width: selected ? 4 : 1
           border.color: selected ? Color.accent : Qt.alpha(Color.menu.border, 0.55)
           scale: selected ? 1 : 0.96
 

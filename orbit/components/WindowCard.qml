@@ -16,7 +16,7 @@ Rectangle {
 
   radius: Style.cornerRadius
   color: root.selected ? Color.menu.selectedBackground : Color.background
-  border.width: root.selected ? 2 : 1
+  border.width: root.selected ? 4 : 1
   border.color: root.selected ? Color.accent : Color.menu.border
   clip: true
 

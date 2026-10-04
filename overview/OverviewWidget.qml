@@ -1121,7 +1121,7 @@ Item {
                     topRightRadius: root.largeWorkspaceRadius
                     bottomLeftRadius: root.largeWorkspaceRadius
                     bottomRightRadius: root.largeWorkspaceRadius
-                    border.width: isFocusedEntry ? 3 : 2
+                    border.width: isFocusedEntry ? 4 : 2
                     border.color: isFocusedEntry ? root.activeBorderColor : TuiStyle.inactiveBorder
                 }
             }
