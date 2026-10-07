@@ -4,6 +4,7 @@ import "."
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 
 Singleton {
     id: root
@@ -12,19 +13,38 @@ Singleton {
     property bool focusQueued: false
     property bool cycleQueued: false
     property int cycleDelta: 0
+    property int switchSession: 0
+
+    // Focus can move to the preview after Super-up has already been delivered.
+    // Check compositor state throughout the gesture so a missed release cannot
+    // leave the overview open. One controller owns this across all monitors.
+    Timer {
+        interval: 150
+        repeat: true
+        triggeredOnStart: true
+        running: GlobalStates.overviewOpen && root.grabbed
+        onTriggered: {
+            if (!superStateQuery.running)
+                superStateQuery.running = true;
+        }
+    }
+
+    Process {
+        id: superStateQuery
+        // hyprctl eval does not print return values; a tagged Lua error exposes
+        // the boolean and identifies the gesture that started the query.
+        command: ["hyprctl", "eval", 'error("overview-super:' + root.switchSession
+            + ':" .. tostring(hl.is_key_down("Super_L") or hl.is_key_down("Super_R")))']
+        stdout: StdioCollector {
+            onStreamFinished: root.observeSuperState(text)
+        }
+    }
 
     Timer {
         id: cycleTimer
         interval: 0
         repeat: false
-        onTriggered: {
-            const delta = root.cycleDelta;
-            root.cycleDelta = 0;
-            root.cycleQueued = false;
-            if (!GlobalStates.overviewOpen || !root.grabbed || delta === 0)
-                return;
-            WorkspaceNavigation.navigateByIndex(delta);
-        }
+        onTriggered: root.flushCycle()
     }
 
     Timer {
@@ -49,6 +69,24 @@ Singleton {
         return GlobalStates.overviewOpen;
     }
 
+    function observeSuperState(output) {
+        if (!GlobalStates.overviewOpen || !root.grabbed)
+            return;
+        const state = output.trim().match(/overview-super:(\d+):(true|false)$/);
+        // Failed queries and results from a previous gesture are not releases.
+        if (state && Number(state[1]) === root.switchSession && state[2] === "false")
+            root.commitGrabbedMode();
+    }
+
+    function flushCycle() {
+        cycleTimer.stop();
+        const delta = root.cycleDelta;
+        root.cycleDelta = 0;
+        root.cycleQueued = false;
+        if (GlobalStates.overviewOpen && root.grabbed && delta !== 0)
+            WorkspaceNavigation.navigateByIndex(delta);
+    }
+
     function queueCycle(dir) {
         root.cycleDelta += dir;
         if (root.cycleQueued)
@@ -71,6 +109,7 @@ Singleton {
         if (GlobalStates.overviewOpen && root.grabbed) {
             root.queueCycle(dir);
         } else {
+            root.switchSession += 1;
             root.grabbed = true;
             GlobalStates.overviewOpen = true;
             root.queueCycle(dir);
@@ -81,6 +120,8 @@ Singleton {
     function commitGrabbedMode() {
         if (!root.grabbed)
             return;
+        // A quick release can beat the zero-delay navigation timer.
+        root.flushCycle();
         GlobalStates.superReleaseMightTrigger = false;
         root.grabbed = false;
         WorkspaceNavigation.commitSelectedWorkspace();

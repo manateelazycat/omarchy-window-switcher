@@ -150,6 +150,67 @@ test("Super+Tab orders current workspace first and previous workspace second", (
   );
 });
 
+function switchingController() {
+  const vm = require("node:vm");
+  const source = read("overview/OverviewSwitchingController.qml");
+  const calls = [];
+  const controller = {
+    grabbed: false, focusQueued: false, cycleQueued: false,
+    cycleDelta: 0, switchSession: 0,
+  };
+  const context = vm.createContext({
+    root: controller,
+    GlobalStates: { overviewOpen: false, superReleaseMightTrigger: false },
+    WorkspaceNavigation: {
+      navigateByIndex: delta => calls.push(["navigate", delta]),
+      commitSelectedWorkspace: () => calls.push(["commit"]),
+    },
+    cycleTimer: { restart() {}, stop() {} },
+    focusTimer: { restart() {}, stop() {} },
+  });
+  vm.runInContext(source.slice(source.indexOf("    function navigationOpen()"), source.lastIndexOf("\n}")), context);
+  for (const key of Object.keys(context))
+    if (typeof context[key] === "function") controller[key] = context[key];
+  return { controller, states: context.GlobalStates, calls };
+}
+
+test("Super+Tab closes after a missed release and applies queued navigation before committing", () => {
+  const { controller, states, calls } = switchingController();
+  controller.openGrabbedMode(1);
+  controller.observeSuperState('error: [string "..."]:1: overview-super:1:true\n');
+  assert.equal(states.overviewOpen, true);
+  controller.queueCycle(1);
+  controller.observeSuperState('error: [string "..."]:1: overview-super:1:false\n');
+  assert.equal(states.overviewOpen, false);
+  assert.equal(controller.grabbed, false);
+  assert.deepEqual(calls, [["navigate", 2], ["commit"]]);
+  controller.observeSuperState('overview-super:1:false');
+  controller.flushCycle();
+  assert.equal(calls.length, 2);
+});
+
+test("Super+Tab ignores failed checks, stale gestures, and checks outside switching mode", () => {
+  const { controller, states, calls } = switchingController();
+  controller.openGrabbedMode(-1);
+  for (const output of ["", "false", "error: unknown function", "overview-super:1:nil"])
+    controller.observeSuperState(output);
+  assert.equal(states.overviewOpen, true);
+  assert.deepEqual(calls, []);
+  controller.reset();
+  states.overviewOpen = false;
+  controller.openGrabbedMode(1);
+  controller.observeSuperState('overview-super:1:false');
+  assert.equal(states.overviewOpen, true);
+  assert.deepEqual(calls, []);
+  controller.observeSuperState('overview-super:2:false');
+  assert.equal(states.overviewOpen, false);
+  controller.reset();
+  states.overviewOpen = true; // Overview opened from the bar, without Super+Tab.
+  controller.observeSuperState('overview-super:2:false');
+  assert.equal(states.overviewOpen, true);
+  assert.deepEqual(calls, [["navigate", 1], ["commit"]]);
+});
+
 test("Super+Tab falls back to the adjacent next workspace", () => {
   const { orderedEntries } = require("../overview/WorkspaceSwitchOrder.js");
   const entries = [1, 2, 3, 4].map(id => ({ id, isTrailingEmpty: false }));
