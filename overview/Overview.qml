@@ -220,8 +220,20 @@ Scope {
             screen: overviewPanelLoader.modelData
             readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
             readonly property bool isFocusedOverviewWindow: overviewScope.isFocusedScreen(panelWindow.screen)
-            visible: GlobalStates.overviewOpen
+            // Content/input gate: what this panel should show right now.
+            // Must be used instead of bare overviewOpen for anything visual —
+            // the surface itself stays mapped across open/close, so unguarded
+            // content would render permanently, and in grabbed mode the
+            // non-focused panel must stay blank even though overviewOpen is true.
+            readonly property bool overviewActive: GlobalStates.overviewOpen
                 && (!OverviewSwitchingController.grabbed || panelWindow.isFocusedOverviewWindow)
+
+            // Keep the layer surface mapped across open/close. Creating and
+            // mapping a wl_surface from scratch costs ~100ms of the Super+Tab
+            // open latency; with it already mapped the open path is just a QML
+            // state flip plus one frame. Closed state stays inert: empty input
+            // region (click-through) and keyboardFocus None below.
+            visible: true
 
             WlrLayershell.namespace: "quickshell:overview"
             WlrLayershell.layer: WlrLayer.Overlay
@@ -230,6 +242,13 @@ Scope {
                 : WlrKeyboardFocus.None
             exclusionMode: ExclusionMode.Ignore
             color: "transparent"
+
+            // Click-through while inactive (zero-area region), full-screen
+            // input while active — the scrim covers everything anyway.
+            mask: Region {
+                width: panelWindow.overviewActive ? panelWindow.width : 0
+                height: panelWindow.overviewActive ? panelWindow.height : 0
+            }
 
             anchors {
                 top: true
@@ -279,8 +298,8 @@ Scope {
                 id: scrim
                 anchors.fill: parent
                 color: ColorUtils.transparentize(Color.background, 0.25)
-                visible: GlobalStates.overviewOpen
-                opacity: GlobalStates.overviewOpen ? 1 : 0
+                visible: panelWindow.overviewActive
+                opacity: panelWindow.overviewActive ? 1 : 0
 
                 Behavior on opacity {
                     NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
@@ -489,11 +508,12 @@ Scope {
             Item {
                 id: overviewContainer
                 anchors.fill: parent
-                visible: GlobalStates.overviewOpen
-                // Do not paint the half-built grid. The loader is synchronous
-                // so the workspace geometry is ready before the first frame;
-                // the short fade hides the remaining capture startup frame.
-                opacity: GlobalStates.overviewOpen && overviewLoader.status === Loader.Ready ? 1 : 0
+                visible: panelWindow.overviewActive
+                // Do not paint the half-built grid: opacity waits on
+                // Loader.Ready, and the short fade hides the remaining
+                // capture startup frame. That gate is what lets the loader
+                // below run asynchronously without showing a partial grid.
+                opacity: panelWindow.overviewActive && overviewLoader.status === Loader.Ready ? 1 : 0
 
                 Behavior on opacity {
                     NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
@@ -511,12 +531,18 @@ Scope {
                     // Leaving it mounted behind the panel causes capture
                     // contexts to compete with the desktop and fail during
                     // drag/move operations.
-                    asynchronous: false
+                    // Asynchronous: the widget build is the largest cost on
+                    // the open path, and a synchronous load stalls the first
+                    // frame for its whole duration. Async returns immediately,
+                    // so the already-mapped surface paints the scrim in the
+                    // next frame; the container stays transparent (see opacity
+                    // gate above) until this loader reports Ready.
+                    asynchronous: true
                     active: (Config?.options.overview.enable ?? true)
-                        && GlobalStates.overviewOpen
+                        && panelWindow.overviewActive
                     sourceComponent: OverviewWidget {
                         screen: panelWindow.screen
-                        visible: GlobalStates.overviewOpen
+                        visible: panelWindow.overviewActive
                     }
                 }
 
