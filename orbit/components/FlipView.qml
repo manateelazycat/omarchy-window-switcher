@@ -1,5 +1,5 @@
 import QtQuick
-import qs.Commons
+import qs.Commons as Commons
 import "../SwitcherLogic.js" as Logic
 
 Item {
@@ -8,19 +8,19 @@ Item {
   property var windows: []
   property int selectedIndex: 0
   property bool hoverArmed: false
-  property real maximumWidth: Style.space(1160)
-  property real maximumHeight: Style.space(620)
+  property real maximumWidth: Commons.Style.space(1160)
+  property real maximumHeight: Commons.Style.space(620)
 
   signal selectRequested(int index)
   signal activateRequested(int index)
 
-  readonly property real cardWidth: Math.min(Style.space(430), maximumWidth * 0.5)
-  readonly property real cardHeight: Math.min(Style.space(282), maximumHeight * 0.68)
-  readonly property real horizontalStep: Math.min(Style.space(126), cardWidth * 0.3)
+  readonly property real cardWidth: Math.min(Commons.Style.space(430), maximumWidth * 0.5)
+  readonly property real cardHeight: Math.min(Commons.Style.space(282), maximumHeight * 0.68)
+  readonly property real horizontalStep: Math.min(Commons.Style.space(126), cardWidth * 0.3)
   readonly property int visibleCount: Math.min(windows.length, 7)
 
   implicitWidth: Math.min(maximumWidth, cardWidth + horizontalStep * Math.max(0, visibleCount - 1))
-  implicitHeight: Math.min(maximumHeight, cardHeight + Style.space(92))
+  implicitHeight: Math.min(maximumHeight, cardHeight + Commons.Style.space(92))
 
   Repeater {
     model: root.windows
@@ -44,7 +44,7 @@ Item {
         width: root.cardWidth
         height: root.cardHeight
         x: (root.width - width) / 2 + (slot.offset || 0) * root.horizontalStep
-        y: (root.height - height) / 2 + distance * Style.space(14)
+        y: (root.height - height) / 2 + distance * Commons.Style.space(14)
         z: 100 - distance * 10
         scale: 1 - distance * 0.075
         opacity: 1 - distance * 0.16

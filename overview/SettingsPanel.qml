@@ -1,10 +1,11 @@
+import "../CompatUi" as ThemeUi
 import QtQuick
 import Quickshell
-import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 import "."
 
-Panel {
+ThemeUi.Panel {
     id: root
     moduleName: "io.github.manateelazycat.window-switcher"
     manageIpc: false
@@ -12,8 +13,8 @@ Panel {
     property var anchorItem: null
     property var hostWidget: null
     readonly property string pluginVersion: "0.1.10"
-    readonly property color panelForeground: Color.popups.text
-    readonly property color panelMuted: Util.alpha(Color.popups.text, 0.58)
+    readonly property color panelForeground: Commons.Color.popups.text
+    readonly property color panelMuted: Commons.Util.alpha(Commons.Color.popups.text, 0.58)
 
     function open() { root.controller.show() }
     function close() { root.controller.hide() }
@@ -74,29 +75,29 @@ Panel {
         required property bool checked
         signal toggled()
 
-        height: rowText.implicitHeight + Style.space(16)
+        height: rowText.implicitHeight + Commons.Style.space(16)
         color: row.checked
-            ? Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.18)
-            : Util.alpha(Color.popups.text, 0.06)
+            ? Qt.rgba(Commons.Color.accent.r, Commons.Color.accent.g, Commons.Color.accent.b, 0.18)
+            : Commons.Util.alpha(Commons.Color.popups.text, 0.06)
         border.width: 1
-        border.color: row.checked ? Color.accent : Color.popups.border
+        border.color: row.checked ? Commons.Color.accent : Commons.Color.popups.border
 
         Column {
             id: rowText
             anchors.left: parent.left
             anchors.right: pill.left
             anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: Style.space(8)
-            anchors.rightMargin: Style.space(8)
-            spacing: Style.space(2)
+            anchors.leftMargin: Commons.Style.space(8)
+            anchors.rightMargin: Commons.Style.space(8)
+            spacing: Commons.Style.space(2)
 
             Text {
                 text: row.title
                 width: parent.width
                 wrapMode: Text.WordWrap
                 color: root.panelForeground
-                font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                font.pixelSize: Style.font.body
+                font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                font.pixelSize: Commons.Style.font.body
                 font.bold: true
             }
             Text {
@@ -104,8 +105,8 @@ Panel {
                 width: parent.width
                 wrapMode: Text.WordWrap
                 color: root.panelMuted
-                font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                font.pixelSize: Style.font.caption
+                font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                font.pixelSize: Commons.Style.font.caption
             }
         }
 
@@ -113,19 +114,19 @@ Panel {
             id: pill
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: Style.space(8)
-            width: pillLabel.implicitWidth + Style.space(16)
-            height: pillLabel.implicitHeight + Style.space(6)
+            anchors.rightMargin: Commons.Style.space(8)
+            width: pillLabel.implicitWidth + Commons.Style.space(16)
+            height: pillLabel.implicitHeight + Commons.Style.space(6)
             radius: height / 2
-            color: row.checked ? Color.accent : Util.alpha(Color.popups.text, 0.14)
+            color: row.checked ? Commons.Color.accent : Commons.Util.alpha(Commons.Color.popups.text, 0.14)
 
             Text {
                 id: pillLabel
                 anchors.centerIn: parent
                 text: row.checked ? "ON" : "OFF"
-                color: row.checked ? Color.popups.background : root.panelMuted
-                font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                font.pixelSize: Style.font.caption
+                color: row.checked ? Commons.Color.popups.background : root.panelMuted
+                font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                font.pixelSize: Commons.Style.font.caption
                 font.bold: true
             }
         }
@@ -136,17 +137,17 @@ Panel {
         }
     }
 
-    KeyboardPanel {
+    ThemeUi.KeyboardPanel {
         id: panel
         anchorItem: root.anchorItem
         owner: root.hostWidget || root
         bar: root.bar
         open: root.opened
         focusTarget: keyCatcher
-        contentWidth: panel.fittedContentWidth(Style.space(360))
+        contentWidth: panel.fittedContentWidth(Commons.Style.space(360))
         contentHeight: panel.fittedContentHeight(content.implicitHeight)
 
-        PanelKeyCatcher {
+        ThemeUi.PanelKeyCatcher {
             id: keyCatcher
             anchors.fill: parent
             onCloseRequested: root.close()
@@ -155,7 +156,7 @@ Panel {
                 id: content
                 anchors.fill: parent
                 implicitWidth: Math.max(menuColumn.implicitWidth, versionLabel.implicitWidth)
-                implicitHeight: menuColumn.implicitHeight + versionLabel.implicitHeight + Style.space(12)
+                implicitHeight: menuColumn.implicitHeight + versionLabel.implicitHeight + Commons.Style.space(12)
 
                 Flickable {
                     id: menuScroller
@@ -163,7 +164,7 @@ Panel {
                     anchors.right: parent.right
                     anchors.top: parent.top
                     anchors.bottom: versionLabel.top
-                    anchors.bottomMargin: Style.space(8)
+                    anchors.bottomMargin: Commons.Style.space(8)
                     contentWidth: width
                     contentHeight: menuColumn.implicitHeight
                     clip: true
@@ -173,15 +174,15 @@ Panel {
                     Column {
                         id: menuColumn
                         width: menuScroller.width
-                        spacing: Style.space(10)
+                        spacing: Commons.Style.space(10)
 
                         Text {
                             text: "Workspace ordering"
                             width: parent.width
                             wrapMode: Text.WordWrap
                             color: root.panelForeground
-                            font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                            font.pixelSize: Style.font.title
+                            font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                            font.pixelSize: Commons.Style.font.title
                             font.bold: true
                         }
 
@@ -190,8 +191,8 @@ Panel {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             color: root.panelMuted
-                            font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                            font.pixelSize: Style.font.body
+                            font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                            font.pixelSize: Commons.Style.font.body
                         }
 
                         ToggleRow {
@@ -207,7 +208,7 @@ Panel {
                         Rectangle {
                             width: menuColumn.width
                             height: 1
-                            color: Util.alpha(Color.popups.text, 0.12)
+                            color: Commons.Util.alpha(Commons.Color.popups.text, 0.12)
                         }
 
                         Text {
@@ -215,8 +216,8 @@ Panel {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             color: root.panelForeground
-                            font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                            font.pixelSize: Style.font.title
+                            font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                            font.pixelSize: Commons.Style.font.title
                             font.bold: true
                         }
 
@@ -234,7 +235,7 @@ Panel {
                             width: menuColumn.width
                             height: 1
                             visible: root.multiMonitor
-                            color: Util.alpha(Color.popups.text, 0.12)
+                            color: Commons.Util.alpha(Commons.Color.popups.text, 0.12)
                         }
 
                         Text {
@@ -243,8 +244,8 @@ Panel {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             color: root.panelForeground
-                            font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                            font.pixelSize: Style.font.title
+                            font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                            font.pixelSize: Commons.Style.font.title
                             font.bold: true
                         }
 
@@ -267,8 +268,8 @@ Panel {
                     anchors.bottom: parent.bottom
                     text: `v${root.pluginVersion}`
                     color: root.panelMuted
-                    font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                    font.pixelSize: Style.font.caption
+                    font.family: root.bar ? root.bar.fontFamily : Commons.Style.font.family
+                    font.pixelSize: Commons.Style.font.caption
                     horizontalAlignment: Text.AlignRight
                 }
             }

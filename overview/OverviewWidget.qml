@@ -1,6 +1,6 @@
 pragma ComponentBehavior: Bound
 import "."
-import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 import QtQuick
 import QtQuick.Layouts

@@ -1,5 +1,5 @@
 import QtQuick
-import qs.Commons
+import qs.Commons as Commons
 import "../SwitcherLogic.js" as Logic
 
 Item {
@@ -8,8 +8,8 @@ Item {
   property var windows: []
   property int selectedIndex: 0
   property bool hoverArmed: false
-  property real maximumWidth: Style.space(1240)
-  property real maximumHeight: Style.space(720)
+  property real maximumWidth: Commons.Style.space(1240)
+  property real maximumHeight: Commons.Style.space(720)
 
   signal selectRequested(int index)
   signal activateRequested(int index)
@@ -17,10 +17,10 @@ Item {
   readonly property int pageSize: 12
   readonly property int firstIndex: Logic.pageStart(root.selectedIndex, root.pageSize)
   readonly property var pageWindows: root.windows.slice(firstIndex, firstIndex + pageSize)
-  readonly property real spacing: Style.space(12)
-  readonly property real horizontalCardPadding: Style.space(8)
-  readonly property real fixedCardHeight: Style.space(52)
-  readonly property var layoutData: Logic.aspectGridLayout(pageWindows, maximumWidth, maximumHeight, spacing, horizontalCardPadding, fixedCardHeight, Style.space(220))
+  readonly property real spacing: Commons.Style.space(12)
+  readonly property real horizontalCardPadding: Commons.Style.space(8)
+  readonly property real fixedCardHeight: Commons.Style.space(52)
+  readonly property var layoutData: Logic.aspectGridLayout(pageWindows, maximumWidth, maximumHeight, spacing, horizontalCardPadding, fixedCardHeight, Commons.Style.space(220))
 
   implicitWidth: layoutData.width
   implicitHeight: layoutData.height
@@ -56,12 +56,12 @@ Item {
   Text {
     visible: root.windows.length > root.pageSize
     anchors.top: parent.bottom
-    anchors.topMargin: Style.space(6)
+    anchors.topMargin: Commons.Style.space(6)
     anchors.horizontalCenter: parent.horizontalCenter
     text: (Math.floor(root.selectedIndex / root.pageSize) + 1) + " / " + Math.ceil(root.windows.length / root.pageSize)
-    color: Color.menu.text
+    color: Commons.Color.menu.text
     opacity: 0.6
-    font.family: Style.font.menuFamily
-    font.pixelSize: Style.font.caption
+    font.family: Commons.Style.font.menuFamily
+    font.pixelSize: Commons.Style.font.caption
   }
 }

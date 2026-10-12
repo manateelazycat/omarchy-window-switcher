@@ -1,8 +1,9 @@
+import "../../CompatUi" as ThemeUi
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
-import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 import ".." as Local
 import "../WorkspaceModelSync.js" as WorkspaceModelSync
@@ -133,7 +134,7 @@ BarWidget {
         onLoaded: { root.injectPanel(); injectPanelTimer.restart(); }
     }
 
-    WidgetButton {
+    ThemeUi.WidgetButton {
         id: mruLabel
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
@@ -150,7 +151,7 @@ BarWidget {
         }
     }
 
-    WidgetButton {
+    ThemeUi.WidgetButton {
         id: button
         anchors.left: root.mruEnabled ? mruLabel.right : workspaceRow.right
         anchors.verticalCenter: parent.verticalCenter
@@ -173,13 +174,13 @@ BarWidget {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         height: parent.height
-        spacing: Style.space(1)
+        spacing: Commons.Style.space(1)
         visible: !root.mruEnabled
 
         Repeater {
             model: workspaceModel
 
-            WidgetButton {
+            ThemeUi.WidgetButton {
                 required property int workspaceId
                 readonly property bool focused: root.focusedWorkspaceId === workspaceId
                 readonly property var workspace: Local.HyprlandData.workspaceById[workspaceId]
@@ -197,7 +198,7 @@ BarWidget {
                 opacity: occupied || focused ? 1 : 0.5
                 horizontalMargin: 6
                 verticalPadding: 6
-                fixedWidth: Style.space(20)
+                fixedWidth: Commons.Style.space(20)
                 fixedHeight: root.barSize
                 onPressed: function(buttonCode) {
                     if (buttonCode === Qt.RightButton)

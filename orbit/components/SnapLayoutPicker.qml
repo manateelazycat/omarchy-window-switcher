@@ -1,6 +1,5 @@
 import QtQuick
-import qs.Commons
-
+import qs.Commons as Commons
 Grid {
   id: root
 
@@ -13,7 +12,7 @@ Grid {
   signal slotHovered(int layoutIndex, int slotIndex)
 
   columns: 4
-  spacing: Style.space(12)
+  spacing: Commons.Style.space(12)
 
   function hitTest(x, y) {
     for (let index = 0; index < layoutRepeater.count; index++) {
@@ -50,12 +49,12 @@ Grid {
         return -1
       }
 
-      width: Style.space(136)
-      height: Style.space(108)
-      radius: Style.cornerRadius
-      color: Color.background
+      width: Commons.Style.space(136)
+      height: Commons.Style.space(108)
+      radius: Commons.Style.cornerRadius
+      color: Commons.Color.background
       border.width: root.selectedLayout === index ? 2 : 1
-      border.color: root.selectedLayout === index ? Color.accent : Color.menu.border
+      border.color: root.selectedLayout === index ? Commons.Color.accent : Commons.Color.menu.border
 
       Item {
         id: layoutCanvas
@@ -64,9 +63,9 @@ Grid {
           top: parent.top
           left: parent.left
           right: parent.right
-          margins: Style.space(10)
+          margins: Commons.Style.space(10)
         }
-        height: Style.space(68)
+        height: Commons.Style.space(68)
 
         Repeater {
           id: slotRepeater
@@ -80,14 +79,14 @@ Grid {
 
             readonly property bool selected: root.selectedLayout === layoutTile.index && root.selectedSlot === index
 
-            x: modelData.x * layoutCanvas.width + Style.space(2)
-            y: modelData.y * layoutCanvas.height + Style.space(2)
-            width: modelData.width * layoutCanvas.width - Style.space(4)
-            height: modelData.height * layoutCanvas.height - Style.space(4)
-            radius: Math.max(2, Style.cornerRadius - Style.space(4))
-            color: selected || hoverHandler.hovered ? Qt.alpha(Color.accent, selected ? 0.62 : 0.36) : Qt.alpha(Color.menu.text, 0.13)
+            x: modelData.x * layoutCanvas.width + Commons.Style.space(2)
+            y: modelData.y * layoutCanvas.height + Commons.Style.space(2)
+            width: modelData.width * layoutCanvas.width - Commons.Style.space(4)
+            height: modelData.height * layoutCanvas.height - Commons.Style.space(4)
+            radius: Math.max(2, Commons.Style.cornerRadius - Commons.Style.space(4))
+            color: selected || hoverHandler.hovered ? Qt.alpha(Commons.Color.accent, selected ? 0.62 : 0.36) : Qt.alpha(Commons.Color.menu.text, 0.13)
             border.width: selected ? 2 : 1
-            border.color: selected ? Color.accent : Qt.alpha(Color.menu.text, 0.25)
+            border.color: selected ? Commons.Color.accent : Qt.alpha(Commons.Color.menu.text, 0.25)
 
             HoverHandler {
               id: hoverHandler
@@ -109,14 +108,14 @@ Grid {
       Text {
         anchors {
           bottom: parent.bottom
-          bottomMargin: Style.space(8)
+          bottomMargin: Commons.Style.space(8)
           horizontalCenter: parent.horizontalCenter
         }
         text: String(layoutTile.layoutData.label || "Layout")
-        color: Color.menu.text
+        color: Commons.Color.menu.text
         opacity: 0.72
-        font.family: Style.font.menuFamily
-        font.pixelSize: Style.font.caption
+        font.family: Commons.Style.font.menuFamily
+        font.pixelSize: Commons.Style.font.caption
       }
     }
   }

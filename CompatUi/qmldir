@@ -1,0 +1,5 @@
+singleton ThemeBorder 1.0 ThemeBorder.qml
+KeyboardPanel 1.0 KeyboardPanel.qml
+Panel 1.0 Panel.qml
+PanelKeyCatcher 1.0 PanelKeyCatcher.qml
+WidgetButton 1.0 WidgetButton.qml

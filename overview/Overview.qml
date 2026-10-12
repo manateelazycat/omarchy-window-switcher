@@ -1,6 +1,6 @@
 pragma ComponentBehavior: Bound
 import "."
-import qs.Commons
+import qs.Commons as Commons
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -297,7 +297,7 @@ Scope {
             Rectangle {
                 id: scrim
                 anchors.fill: parent
-                color: ColorUtils.transparentize(Color.background, 0.25)
+                color: ColorUtils.transparentize(Commons.Color.background, 0.25)
                 visible: panelWindow.overviewActive
                 opacity: panelWindow.overviewActive ? 1 : 0
 

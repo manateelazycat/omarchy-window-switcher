@@ -1,7 +1,6 @@
 import QtQuick
 import Quickshell.Wayland
-import qs.Commons
-
+import qs.Commons as Commons
 Rectangle {
   id: root
 
@@ -14,10 +13,10 @@ Rectangle {
   signal selectRequested(int index)
   signal activateRequested(int index)
 
-  radius: Style.cornerRadius
-  color: root.selected ? Color.menu.selectedBackground : Color.background
+  radius: Commons.Style.cornerRadius
+  color: root.selected ? Commons.Color.menu.selectedBackground : Commons.Color.background
   border.width: root.selected ? 4 : 1
-  border.color: root.selected ? Color.accent : Color.menu.border
+  border.color: root.selected ? Commons.Color.accent : Commons.Color.menu.border
   clip: true
 
   Rectangle {
@@ -28,11 +27,11 @@ Rectangle {
       left: parent.left
       right: parent.right
       bottom: header.top
-      margins: Style.space(8)
-      bottomMargin: Style.space(6)
+      margins: Commons.Style.space(8)
+      bottomMargin: Commons.Style.space(6)
     }
-    radius: Math.max(2, Style.cornerRadius - Style.space(3))
-    color: Qt.alpha(Color.menu.text, 0.05)
+    radius: Math.max(2, Commons.Style.cornerRadius - Commons.Style.space(3))
+    color: Qt.alpha(Commons.Color.menu.text, 0.05)
     clip: true
 
     AppIcon {
@@ -64,15 +63,15 @@ Rectangle {
       right: parent.right
       bottom: parent.bottom
     }
-    height: Style.space(38)
-    color: root.selected ? Qt.alpha(Color.accent, 0.16) : "transparent"
+    height: Commons.Style.space(38)
+    color: root.selected ? Qt.alpha(Commons.Color.accent, 0.16) : "transparent"
 
     AppIcon {
       id: headerIcon
       anchors.left: parent.left
-      anchors.leftMargin: Style.space(9)
+      anchors.leftMargin: Commons.Style.space(9)
       anchors.verticalCenter: parent.verticalCenter
-      width: Style.space(21)
+      width: Commons.Style.space(21)
       height: width
       iconSource: root.windowData ? root.windowData.iconSource : ""
       fallbackText: root.windowData ? root.windowData.fallbackText : "?"
@@ -82,17 +81,17 @@ Rectangle {
       anchors {
         left: headerIcon.right
         right: parent.right
-        leftMargin: Style.space(8)
-        rightMargin: Style.space(9)
+        leftMargin: Commons.Style.space(8)
+        rightMargin: Commons.Style.space(9)
         verticalCenter: parent.verticalCenter
       }
       text: root.windowData ? root.windowData.label : ""
       textFormat: Text.PlainText
-      color: root.selected ? Color.menu.selectedText : Color.menu.text
+      color: root.selected ? Commons.Color.menu.selectedText : Commons.Color.menu.text
       elide: Text.ElideRight
       maximumLineCount: 1
-      font.family: Style.font.menuFamily
-      font.pixelSize: Style.font.caption
+      font.family: Commons.Style.font.menuFamily
+      font.pixelSize: Commons.Style.font.caption
     }
   }
 

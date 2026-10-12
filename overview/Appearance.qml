@@ -1,18 +1,17 @@
 pragma Singleton
 import QtQuick
-import qs.Commons
-
+import qs.Commons as Commons
 QtObject {
     readonly property QtObject colors: QtObject {
         // Keep the overview surfaces on Omarchy's active theme palette.
-        property color colLayer1: Color.background
-        property color colLayer1Hover: Qt.rgba(Color.foreground.r, Color.foreground.g, Color.foreground.b, 0.08)
-        property color colLayer2: Qt.rgba(Color.foreground.r, Color.foreground.g, Color.foreground.b, 0.04)
-        property color colLayer2Hover: Qt.rgba(Color.foreground.r, Color.foreground.g, Color.foreground.b, 0.08)
-        property color colLayer2Active: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.22)
-        property color colOnLayer1: Color.foreground
-        property color colSurfaceContainerLow: Qt.rgba(Color.foreground.r, Color.foreground.g, Color.foreground.b, 0.04)
-        property color colSurfaceContainer: Qt.rgba(Color.foreground.r, Color.foreground.g, Color.foreground.b, 0.08)
+        property color colLayer1: Commons.Color.background
+        property color colLayer1Hover: Qt.rgba(Commons.Color.foreground.r, Commons.Color.foreground.g, Commons.Color.foreground.b, 0.08)
+        property color colLayer2: Qt.rgba(Commons.Color.foreground.r, Commons.Color.foreground.g, Commons.Color.foreground.b, 0.04)
+        property color colLayer2Hover: Qt.rgba(Commons.Color.foreground.r, Commons.Color.foreground.g, Commons.Color.foreground.b, 0.08)
+        property color colLayer2Active: Qt.rgba(Commons.Color.accent.r, Commons.Color.accent.g, Commons.Color.accent.b, 0.22)
+        property color colOnLayer1: Commons.Color.foreground
+        property color colSurfaceContainerLow: Qt.rgba(Commons.Color.foreground.r, Commons.Color.foreground.g, Commons.Color.foreground.b, 0.04)
+        property color colSurfaceContainer: Qt.rgba(Commons.Color.foreground.r, Commons.Color.foreground.g, Commons.Color.foreground.b, 0.08)
     }
     readonly property QtObject font: QtObject {
         readonly property QtObject pixelSize: QtObject {

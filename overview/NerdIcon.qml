@@ -1,6 +1,5 @@
 import QtQuick
-import qs.Commons
-
+import qs.Commons as Commons
 Text {
     id: root
 
@@ -24,7 +23,7 @@ Text {
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
     font {
-        // Style.fontFamily is not guaranteed to contain private-use Nerd Font
+        // Commons.Style.fontFamily is not guaranteed to contain private-use Nerd Font
         // glyphs. Keep the icon font explicit; changing this to the text theme
         // font makes every fallback icon render as an empty box.
         family: "JetBrainsMono Nerd Font"

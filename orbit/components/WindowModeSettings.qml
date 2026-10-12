@@ -1,6 +1,5 @@
 import QtQuick
-import qs.Commons
-
+import qs.Commons as Commons
 Column {
   id: root
 
@@ -50,17 +49,17 @@ Column {
     }
   ]
 
-  spacing: Style.space(8)
+  spacing: Commons.Style.space(8)
 
   Text {
     width: parent.width
     text: "Choose the launch default, Alt+Tab behavior, and which Omarchy mode shortcuts remain available. App-requested video and game fullscreen stays allowed."
     textFormat: Text.PlainText
     wrapMode: Text.WordWrap
-    color: Color.menu.text
+    color: Commons.Color.menu.text
     opacity: 0.72
-    font.family: Style.font.menuFamily
-    font.pixelSize: Style.font.caption
+    font.family: Commons.Style.font.menuFamily
+    font.pixelSize: Commons.Style.font.caption
   }
 
   Repeater {
@@ -75,34 +74,34 @@ Column {
       readonly property bool isDefault: root.modes.defaultMode === modelData.key
 
       width: root.width
-      height: Style.space(48)
-      radius: Style.cornerRadius
-      color: modeEnabled ? Qt.alpha(Color.menu.text, 0.06) : "transparent"
+      height: Commons.Style.space(48)
+      radius: Commons.Style.cornerRadius
+      color: modeEnabled ? Qt.alpha(Commons.Color.menu.text, 0.06) : "transparent"
       border.width: 1
-      border.color: modeEnabled ? Color.menu.border : Qt.alpha(Color.menu.text, 0.12)
+      border.color: modeEnabled ? Commons.Color.menu.border : Qt.alpha(Commons.Color.menu.text, 0.12)
 
       Rectangle {
         id: checkBox
 
         anchors {
           left: parent.left
-          leftMargin: Style.space(12)
+          leftMargin: Commons.Style.space(12)
           verticalCenter: parent.verticalCenter
         }
-        width: Style.space(22)
+        width: Commons.Style.space(22)
         height: width
-        radius: Style.space(5)
-        color: modeRow.modeEnabled ? Color.accent : "transparent"
+        radius: Commons.Style.space(5)
+        color: modeRow.modeEnabled ? Commons.Color.accent : "transparent"
         border.width: 1
-        border.color: modeRow.modeEnabled ? Color.accent : Color.menu.border
+        border.color: modeRow.modeEnabled ? Commons.Color.accent : Commons.Color.menu.border
 
         Text {
           anchors.centerIn: parent
           visible: modeRow.modeEnabled
           text: "✓"
-          color: Color.background
+          color: Commons.Color.background
           font.bold: true
-          font.pixelSize: Style.font.caption
+          font.pixelSize: Commons.Style.font.caption
         }
 
         TapHandler {
@@ -113,25 +112,25 @@ Column {
       Column {
         anchors {
           left: checkBox.right
-          leftMargin: Style.space(10)
+          leftMargin: Commons.Style.space(10)
           verticalCenter: parent.verticalCenter
         }
         spacing: 1
 
         Text {
           text: String(modeRow.modelData.label)
-          color: Color.menu.text
+          color: Commons.Color.menu.text
           opacity: modeRow.modeEnabled ? 1 : 0.5
-          font.family: Style.font.menuFamily
-          font.pixelSize: Style.font.body
+          font.family: Commons.Style.font.menuFamily
+          font.pixelSize: Commons.Style.font.body
         }
 
         Text {
           text: String(modeRow.modelData.shortcut)
-          color: Color.menu.text
+          color: Commons.Color.menu.text
           opacity: 0.48
-          font.family: Style.font.menuFamily
-          font.pixelSize: Style.font.caption
+          font.family: Commons.Style.font.menuFamily
+          font.pixelSize: Commons.Style.font.caption
         }
       }
 
@@ -139,23 +138,23 @@ Column {
         visible: modeRow.modelData.canDefault
         anchors {
           right: parent.right
-          rightMargin: Style.space(10)
+          rightMargin: Commons.Style.space(10)
           verticalCenter: parent.verticalCenter
         }
-        width: Style.space(82)
-        height: Style.space(26)
+        width: Commons.Style.space(82)
+        height: Commons.Style.space(26)
         radius: height / 2
-        color: modeRow.isDefault ? Qt.alpha(Color.accent, 0.22) : "transparent"
+        color: modeRow.isDefault ? Qt.alpha(Commons.Color.accent, 0.22) : "transparent"
         border.width: 1
-        border.color: modeRow.isDefault ? Color.accent : Color.menu.border
+        border.color: modeRow.isDefault ? Commons.Color.accent : Commons.Color.menu.border
 
         Text {
           anchors.centerIn: parent
           text: modeRow.isDefault ? "Default" : "Set default"
-          color: modeRow.isDefault ? Color.accent : Color.menu.text
+          color: modeRow.isDefault ? Commons.Color.accent : Commons.Color.menu.text
           opacity: modeRow.modeEnabled ? 1 : 0.38
-          font.family: Style.font.menuFamily
-          font.pixelSize: Style.font.caption
+          font.family: Commons.Style.font.menuFamily
+          font.pixelSize: Commons.Style.font.caption
         }
 
         TapHandler {
@@ -168,7 +167,7 @@ Column {
 
   Row {
     anchors.right: parent.right
-    spacing: Style.space(8)
+    spacing: Commons.Style.space(8)
 
     Repeater {
       model: [
@@ -187,19 +186,19 @@ Column {
 
         required property var modelData
 
-        width: Style.space(92)
-        height: Style.space(32)
-        radius: Style.cornerRadius
-        color: modelData.primary ? Color.accent : Qt.alpha(Color.menu.text, 0.08)
+        width: Commons.Style.space(92)
+        height: Commons.Style.space(32)
+        radius: Commons.Style.cornerRadius
+        color: modelData.primary ? Commons.Color.accent : Qt.alpha(Commons.Color.menu.text, 0.08)
         border.width: modelData.primary ? 0 : 1
-        border.color: Color.menu.border
+        border.color: Commons.Color.menu.border
 
         Text {
           anchors.centerIn: parent
           text: String(actionButton.modelData.label)
-          color: actionButton.modelData.primary ? Color.background : Color.menu.text
-          font.family: Style.font.menuFamily
-          font.pixelSize: Style.font.caption
+          color: actionButton.modelData.primary ? Commons.Color.background : Commons.Color.menu.text
+          font.family: Commons.Style.font.menuFamily
+          font.pixelSize: Commons.Style.font.caption
           font.bold: actionButton.modelData.primary
         }
 

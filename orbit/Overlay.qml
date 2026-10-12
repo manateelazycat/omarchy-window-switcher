@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
-import qs.Commons
+import qs.Commons as Commons
 import "components"
 import "SwitcherLogic.js" as Logic
 
@@ -655,7 +655,7 @@ Item {
     const layout = root.snapLayouts[layoutIndex]
     if (!layout || !layout.slots[slotIndex])
       return null
-    const compositorGap = Style.gapsOut * 2
+    const compositorGap = Commons.Style.gapsOut * 2
     return Logic.snapGeometry(layout.slots[slotIndex], root.snapTargetMonitor, compositorGap, compositorGap)
   }
 
@@ -1700,7 +1700,7 @@ Item {
 
       Rectangle {
         anchors.fill: parent
-        color: Color.menu.scrim
+        color: Commons.Color.menu.scrim
 
         TapHandler {
           onTapped: root.closeManager()
@@ -1711,12 +1711,12 @@ Item {
         id: managerCard
 
         anchors.centerIn: parent
-        width: root.managerMode === "settings" ? Style.space(560) : root.managerMode === "snap" ? Math.min(managerPanel.width - Style.gapsOut * 2, Style.space(640)) : Math.min(managerPanel.width - Style.gapsOut * 2, Style.space(560))
-        height: root.managerMode === "settings" ? Style.space(490) : root.managerMode === "assist" ? Math.min(managerPanel.height - Style.gapsOut * 2, Style.space(570)) : Style.space(360)
-        radius: Style.cornerRadius * 2
-        color: Color.menu.background
+        width: root.managerMode === "settings" ? Commons.Style.space(560) : root.managerMode === "snap" ? Math.min(managerPanel.width - Commons.Style.gapsOut * 2, Commons.Style.space(640)) : Math.min(managerPanel.width - Commons.Style.gapsOut * 2, Commons.Style.space(560))
+        height: root.managerMode === "settings" ? Commons.Style.space(490) : root.managerMode === "assist" ? Math.min(managerPanel.height - Commons.Style.gapsOut * 2, Commons.Style.space(570)) : Commons.Style.space(360)
+        radius: Commons.Style.cornerRadius * 2
+        color: Commons.Color.menu.background
         border.width: 1
-        border.color: Color.menu.border
+        border.color: Commons.Color.menu.border
         focus: true
 
         Keys.onPressed: event => {
@@ -1756,26 +1756,26 @@ Item {
 
           anchors {
             top: parent.top
-            topMargin: Style.space(18)
+            topMargin: Commons.Style.space(18)
             horizontalCenter: parent.horizontalCenter
           }
           text: root.managerMode === "settings" ? "Orbit · Window modes" : root.managerMode === "assist" ? "Orbit · Snap Assist" : "Orbit · Snap layouts"
-          color: Color.menu.text
-          font.family: Style.font.menuFamily
-          font.pixelSize: Style.font.body
+          color: Commons.Color.menu.text
+          font.family: Commons.Style.font.menuFamily
+          font.pixelSize: Commons.Style.font.body
           font.bold: true
         }
 
         Loader {
           anchors {
             top: managerHeading.bottom
-            topMargin: Style.space(16)
+            topMargin: Commons.Style.space(16)
             bottom: parent.bottom
-            bottomMargin: Style.space(18)
+            bottomMargin: Commons.Style.space(18)
             left: parent.left
-            leftMargin: Style.space(20)
+            leftMargin: Commons.Style.space(20)
             right: parent.right
-            rightMargin: Style.space(20)
+            rightMargin: Commons.Style.space(20)
           }
           sourceComponent: root.managerMode === "settings" ? settingsComponent : root.managerMode === "assist" ? snapAssistComponent : snapPickerComponent
         }
@@ -1784,7 +1784,7 @@ Item {
           id: snapPickerComponent
 
           Column {
-            spacing: Style.space(14)
+            spacing: Commons.Style.space(14)
 
             SnapLayoutPicker {
               anchors.horizontalCenter: parent.horizontalCenter
@@ -1805,10 +1805,10 @@ Item {
             Text {
               anchors.horizontalCenter: parent.horizontalCenter
               text: "Arrows choose · Enter snaps · Esc cancels"
-              color: Color.menu.text
+              color: Commons.Color.menu.text
               opacity: 0.55
-              font.family: Style.font.menuFamily
-              font.pixelSize: Style.font.caption
+              font.family: Commons.Style.font.menuFamily
+              font.pixelSize: Commons.Style.font.caption
             }
           }
         }
@@ -1830,7 +1830,7 @@ Item {
           id: snapAssistComponent
 
           Column {
-            spacing: Style.space(12)
+            spacing: Commons.Style.space(12)
 
             Text {
               width: parent.width
@@ -1838,16 +1838,16 @@ Item {
               textFormat: Text.PlainText
               wrapMode: Text.WordWrap
               horizontalAlignment: Text.AlignHCenter
-              color: Color.menu.text
+              color: Commons.Color.menu.text
               opacity: 0.65
-              font.family: Style.font.menuFamily
-              font.pixelSize: Style.font.caption
+              font.family: Commons.Style.font.menuFamily
+              font.pixelSize: Commons.Style.font.caption
             }
 
             GridView {
               anchors.horizontalCenter: parent.horizontalCenter
-              maximumWidth: managerCard.width - Style.space(56)
-              maximumHeight: managerCard.height - Style.space(130)
+              maximumWidth: managerCard.width - Commons.Style.space(56)
+              maximumHeight: managerCard.height - Commons.Style.space(130)
               windows: root.snapAssistCandidates
               selectedIndex: root.snapAssistSelected
               hoverArmed: true
@@ -1920,7 +1920,7 @@ Item {
             id: switcherScrim
 
             anchors.fill: parent
-            color: Color.menu.scrim
+            color: Commons.Color.menu.scrim
 
             TapHandler {
               onTapped: root.cancel()
@@ -1938,12 +1938,12 @@ Item {
             id: switcherCard
 
             anchors.centerIn: parent
-            width: Math.min(panel.width - Style.gapsOut * 2, Math.max(Style.space(360), viewLoader.width + Style.space(40)))
-            height: Math.min(panel.height - Style.gapsOut * 2, viewLoader.height + Style.space(144))
-            radius: Style.cornerRadius * 2
-            color: Color.menu.background
+            width: Math.min(panel.width - Commons.Style.gapsOut * 2, Math.max(Commons.Style.space(360), viewLoader.width + Commons.Style.space(40)))
+            height: Math.min(panel.height - Commons.Style.gapsOut * 2, viewLoader.height + Commons.Style.space(144))
+            radius: Commons.Style.cornerRadius * 2
+            color: Commons.Color.menu.background
             border.width: 1
-            border.color: Color.menu.border
+            border.color: Commons.Color.menu.border
             focus: true
 
             Keys.onPressed: event => {
@@ -2002,7 +2002,7 @@ Item {
               id: iconsViewComponent
 
               IconsView {
-                maximumWidth: panel.width - Style.space(96)
+                maximumWidth: panel.width - Commons.Style.space(96)
                 windows: root.entries
                 selectedIndex: root.selectedIndex
                 hoverArmed: root.hoverArmed
@@ -2018,8 +2018,8 @@ Item {
               id: gridViewComponent
 
               GridView {
-                maximumWidth: panel.width - Style.space(96)
-                maximumHeight: panel.height - Style.space(190)
+                maximumWidth: panel.width - Commons.Style.space(96)
+                maximumHeight: panel.height - Commons.Style.space(190)
                 windows: root.entries
                 selectedIndex: root.selectedIndex
                 hoverArmed: root.hoverArmed
@@ -2035,8 +2035,8 @@ Item {
               id: flipViewComponent
 
               FlipView {
-                maximumWidth: panel.width - Style.space(96)
-                maximumHeight: panel.height - Style.space(190)
+                maximumWidth: panel.width - Commons.Style.space(96)
+                maximumHeight: panel.height - Commons.Style.space(190)
                 windows: root.entries
                 selectedIndex: root.selectedIndex
                 hoverArmed: root.hoverArmed
@@ -2050,17 +2050,17 @@ Item {
 
             Text {
               anchors.bottom: parent.bottom
-              anchors.bottomMargin: Style.space(16)
+              anchors.bottomMargin: Commons.Style.space(16)
               anchors.horizontalCenter: parent.horizontalCenter
-              width: Math.min(parent.width - Style.space(48), Style.space(620))
+              width: Math.min(parent.width - Commons.Style.space(48), Commons.Style.space(620))
               text: root.entries[root.selectedIndex] ? root.entries[root.selectedIndex].title : ""
               textFormat: Text.PlainText
-              color: Color.menu.text
+              color: Commons.Color.menu.text
               opacity: 0.72
               elide: Text.ElideRight
               horizontalAlignment: Text.AlignHCenter
-              font.family: Style.font.menuFamily
-              font.pixelSize: Style.font.caption
+              font.family: Commons.Style.font.menuFamily
+              font.pixelSize: Commons.Style.font.caption
             }
           }
         }
@@ -2092,7 +2092,7 @@ Item {
             anchors.fill: parent
             z: 1000
             opacity: root.activationCommitInProgress && root.handoffNeedsCover && outgoingCapture.hasContent ? 1 : 0
-            color: Color.menu.background
+            color: Commons.Color.menu.background
             clip: true
 
             ScreencopyView {

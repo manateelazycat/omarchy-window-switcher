@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import qs.Commons
+import qs.Commons as Commons
 import "../SwitcherLogic.js" as Logic
 
 PanelWindow {
@@ -12,7 +12,7 @@ PanelWindow {
   required property var layouts
   property int selectedLayout: -1
   property int selectedSlot: -1
-  readonly property var cardGeometry: Logic.dragPickerGeometry(gesture.monitor, presentation.anchor, Style.space(640), Style.space(318))
+  readonly property var cardGeometry: Logic.dragPickerGeometry(gesture.monitor, presentation.anchor, Commons.Style.space(640), Commons.Style.space(318))
 
   function hitTest(globalX, globalY) {
     const local = picker.mapFromItem(root.contentItem, globalX - gesture.monitor.x, globalY - gesture.monitor.y)
@@ -39,28 +39,28 @@ PanelWindow {
     y: root.cardGeometry.y
     width: root.cardGeometry.width
     height: root.cardGeometry.height
-    radius: Style.cornerRadius * 2
-    color: Color.menu.background
+    radius: Commons.Style.cornerRadius * 2
+    color: Commons.Color.menu.background
     border.width: 1
-    border.color: Color.accent
+    border.color: Commons.Color.accent
 
     Text {
       anchors {
         top: parent.top
-        topMargin: Style.space(14)
+        topMargin: Commons.Style.space(14)
         horizontalCenter: parent.horizontalCenter
       }
       text: "Orbit · Drop onto a zone"
-      color: Color.menu.text
-      font.family: Style.font.menuFamily
-      font.pixelSize: Style.font.body
+      color: Commons.Color.menu.text
+      font.family: Commons.Style.font.menuFamily
+      font.pixelSize: Commons.Style.font.body
       font.bold: true
     }
     SnapLayoutPicker {
       id: picker
       anchors {
         top: parent.top
-        topMargin: Style.space(46)
+        topMargin: Commons.Style.space(46)
         horizontalCenter: parent.horizontalCenter
       }
       layouts: root.layouts
@@ -71,14 +71,14 @@ PanelWindow {
     Text {
       anchors {
         bottom: parent.bottom
-        bottomMargin: Style.space(12)
+        bottomMargin: Commons.Style.space(12)
         horizontalCenter: parent.horizontalCenter
       }
       text: "Maximized = Super + Alt + F · Fullscreen = Super + F · Esc cancels"
-      color: Color.menu.text
+      color: Commons.Color.menu.text
       opacity: 0.65
-      font.family: Style.font.menuFamily
-      font.pixelSize: Style.font.caption
+      font.family: Commons.Style.font.menuFamily
+      font.pixelSize: Commons.Style.font.caption
     }
   }
 }

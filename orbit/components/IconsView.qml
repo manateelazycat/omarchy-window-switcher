@@ -1,19 +1,18 @@
 import QtQuick
-import qs.Commons
-
+import qs.Commons as Commons
 Item {
   id: root
 
   property var windows: []
   property int selectedIndex: 0
   property bool hoverArmed: false
-  property real maximumWidth: Style.space(900)
+  property real maximumWidth: Commons.Style.space(900)
 
   signal selectRequested(int index)
   signal activateRequested(int index)
 
-  readonly property real tileWidth: Style.space(112)
-  readonly property real tileHeight: Style.space(112)
+  readonly property real tileWidth: Commons.Style.space(112)
+  readonly property real tileHeight: Commons.Style.space(112)
 
   implicitWidth: Math.min(root.maximumWidth, iconRow.implicitWidth)
   implicitHeight: root.tileHeight
@@ -58,7 +57,7 @@ Item {
 
     Row {
       id: iconRow
-      spacing: Style.space(8)
+      spacing: Commons.Style.space(8)
 
       Repeater {
         id: iconRepeater
@@ -75,10 +74,10 @@ Item {
 
           width: root.tileWidth
           height: root.tileHeight
-          radius: Style.cornerRadius
-          color: selected ? Color.menu.selectedBackground : (hoverHandler.hovered ? Qt.alpha(Color.menu.text, 0.08) : "transparent")
+          radius: Commons.Style.cornerRadius
+          color: selected ? Commons.Color.menu.selectedBackground : (hoverHandler.hovered ? Qt.alpha(Commons.Color.menu.text, 0.08) : "transparent")
           border.width: selected ? 4 : 1
-          border.color: selected ? Color.accent : Qt.alpha(Color.menu.border, 0.55)
+          border.color: selected ? Commons.Color.accent : Qt.alpha(Commons.Color.menu.border, 0.55)
           scale: selected ? 1 : 0.96
 
           Behavior on scale {
@@ -94,9 +93,9 @@ Item {
 
           AppIcon {
             anchors.top: parent.top
-            anchors.topMargin: Style.space(12)
+            anchors.topMargin: Commons.Style.space(12)
             anchors.horizontalCenter: parent.horizontalCenter
-            width: Style.space(56)
+            width: Commons.Style.space(56)
             height: width
             iconSource: tile.modelData.iconSource
             fallbackText: tile.modelData.fallbackText
@@ -107,17 +106,17 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: Style.space(9)
-            anchors.leftMargin: Style.space(6)
-            anchors.rightMargin: Style.space(6)
+            anchors.bottomMargin: Commons.Style.space(9)
+            anchors.leftMargin: Commons.Style.space(6)
+            anchors.rightMargin: Commons.Style.space(6)
             text: tile.modelData.label
             textFormat: Text.PlainText
-            color: tile.selected ? Color.menu.selectedText : Color.menu.text
+            color: tile.selected ? Commons.Color.menu.selectedText : Commons.Color.menu.text
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             maximumLineCount: 1
-            font.family: Style.font.menuFamily
-            font.pixelSize: Style.font.caption
+            font.family: Commons.Style.font.menuFamily
+            font.pixelSize: Commons.Style.font.caption
           }
 
           HoverHandler {
