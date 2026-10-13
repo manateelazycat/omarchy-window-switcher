@@ -6,6 +6,72 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = relative => fs.readFileSync(path.join(root, relative), "utf8");
 
+const unsafeWindowClasses = [
+  "/tmp/foreign.png", "file:///tmp/foreign.png", "image://provider/foreign",
+  "https://example.com/foreign.png", "../foreign.png", "./foreign.png",
+  "icons/foreign.png", "..", ".", "C:\\foreign.png", "foreign\\image.png",
+  "%2Ftmp%2Fforeign.png", "qrc:/foreign.png", "firefox\n/tmp/foreign.png",
+];
+
+test("overview window icons reject paths and URLs before lookup", () => {
+  const vm = require("node:vm");
+  const source = read("overview/AppSearch.qml");
+  const calls = [];
+  const resolver = { iconIndex: {} };
+  const context = vm.createContext({
+    root: resolver,
+    Quickshell: { iconPath(name) { calls.push(name); return `/theme/${name}.svg`; } },
+  });
+  for (const name of ["iconSource", "windowIconSource"]) {
+    const match = source.match(new RegExp(`    function ${name}\\([^]*?\\n    }`));
+    assert.ok(match);
+    vm.runInContext(match[0], context);
+    resolver[name] = context[name];
+  }
+  for (const value of unsafeWindowClasses.concat(["", null])) {
+    calls.length = 0;
+    assert.equal(resolver.windowIconSource(value), "file:///theme/application-x-executable.svg");
+    assert.deepEqual(calls, ["application-x-executable"]);
+  }
+  for (const name of ["firefox", "org.telegram.desktop", "org.gnome.Terminal", "code-oss", "_app"]) {
+    calls.length = 0;
+    assert.equal(resolver.windowIconSource(name), `file:///theme/${name}.svg`);
+    assert.deepEqual(calls, [name]);
+  }
+  resolver.iconIndex.firefox = "/theme/firefox.png";
+  assert.equal(resolver.windowIconSource("firefox"), "file:///theme/firefox.png");
+  assert.equal(resolver.iconSource("/usr/share/pixmaps/app.png"), "file:///usr/share/pixmaps/app.png");
+  assert.equal(resolver.iconSource("file:///usr/share/pixmaps/app.png"), "file:///usr/share/pixmaps/app.png");
+  const widget = read("overview/OverviewWidget.qml");
+  assert.equal((widget.match(/AppSearch\.windowIconSource\(/g) || []).length, 2);
+  assert.doesNotMatch(widget, /AppSearch\.iconSource\(/);
+  assert.match(read("overview/OverviewSearch.qml"), /AppSearch\.windowIconSource\(root\.windowProgram\(modelData\)\)/);
+});
+
+test("Orbit excludes client paths and URLs from application and icon lookups", () => {
+  const vm = require("node:vm");
+  const source = read("orbit/Overlay.qml");
+  const calls = [];
+  const context = vm.createContext({
+    DesktopEntries: {
+      applications: { values: [] },
+      byId(name) { calls.push(name); return null; },
+      heuristicLookup(name) { calls.push(name); return null; },
+    },
+    Quickshell: { iconPath(name) { calls.push(name); return ""; } },
+    Logic: { normalizeApplicationKey: x => x, friendlyAppName: x => x, appMonogram: () => "?" },
+  });
+  vm.runInContext(source.match(/  function applicationInfo\([^]*?\n  }/)[0], context);
+  for (const value of unsafeWindowClasses) {
+    calls.length = 0;
+    assert.equal(context.applicationInfo(value, value, value).icon, "");
+    assert.deepEqual(calls, []);
+  }
+  calls.length = 0;
+  context.applicationInfo("firefox", "", "");
+  assert.ok(calls.includes("firefox"));
+});
+
 test("manifest exposes every combined plugin entry point", () => {
   const manifest = JSON.parse(read("manifest.json"));
   const packageMetadata = JSON.parse(read("package.json"));

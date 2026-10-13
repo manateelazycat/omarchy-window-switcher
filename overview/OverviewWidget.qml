@@ -536,7 +536,7 @@ Item {
 
     function infoIconSourceForGroup(group) {
         const win = root.infoWindowForGroup(group);
-        return win ? AppSearch.iconSource(AppSearch.guessIcon(win.class || "")) : "";
+        return win ? AppSearch.windowIconSource(win.class || "") : "";
     }
 
     Connections {
@@ -612,8 +612,8 @@ Item {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 32
                 Layout.preferredHeight: 32
-                source: AppSearch.iconSource(AppSearch.guessIcon(
-                    crossDragProxy.windowData?.class ?? crossDragProxy.windowData?.initialClass ?? ""))
+                source: AppSearch.windowIconSource(
+                    crossDragProxy.windowData?.class ?? crossDragProxy.windowData?.initialClass ?? "")
                 fillMode: Image.PreserveAspectFit
                 visible: status === Image.Ready
             }

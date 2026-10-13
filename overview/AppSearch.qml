@@ -100,7 +100,14 @@ Singleton {
 
     Component.onCompleted: iconIndexScan.running = true
 
-    function guessIcon(name) { return name || "application-x-executable" }
+    // Window classes are client-controlled identifiers, not image sources.
+    // Reject paths, URLs and traversal before either icon lookup is reached.
+    function windowIconSource(windowClass) {
+        const name = String(windowClass || "").trim();
+        const safeName = /^[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(name)
+            ? name : "application-x-executable";
+        return root.iconSource(safeName);
+    }
 
     function entryHaystack(entry) {
         return [

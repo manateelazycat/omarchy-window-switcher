@@ -368,7 +368,7 @@ Item {
                         title: root.windowTitle(modelData)
                         subtitle: root.windowProgram(modelData)
                         meta: root.workspaceLabel(modelData)
-                        iconSource: AppSearch.iconSource(AppSearch.guessIcon(root.windowProgram(modelData)))
+                        iconSource: AppSearch.windowIconSource(root.windowProgram(modelData))
                         selected: root.selectedIndex === resultIndex
                         onActivated: root.focusWindow(modelData)
                     }

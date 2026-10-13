@@ -174,6 +174,9 @@ Item {
     const variants = []
     for (const rawVariant of rawVariants) {
       const value = String(rawVariant || "").trim().replace(/\.desktop$/i, "")
+      // Client-provided classes/app IDs must never become paths or URLs.
+      if (!/^[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(value))
+        continue
       const lower = value.toLowerCase()
       const candidates = [value, lower, lower.replace(/-/g, ""), lower.split(".")[0], lower.split(".").pop()]
       for (const candidate of candidates) {

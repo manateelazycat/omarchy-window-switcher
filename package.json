@@ -1,6 +1,6 @@
 {
   "name": "omarchy-window-switcher",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.cjs"
